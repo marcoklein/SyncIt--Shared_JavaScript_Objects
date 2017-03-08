@@ -1,2 +1,5 @@
-# syncit
-Sync JavaScript objects across the network. Perfect for every real time web application and games.
+#Sync It!
+Sync JavaScript objects across the network.
+
+##Easy to Use
+SyncIt is an easy to use WebSocket based synchronize library.
