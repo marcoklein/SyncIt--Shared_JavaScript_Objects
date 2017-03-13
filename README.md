@@ -13,11 +13,11 @@ As you created a syncit instance using `var syncit = new SyncIt(webSocket);`, pr
 ###Sync Modes
 ```
 // sync everything
-syncit.sync(38, chat);
+syncit.sync(chat);
 // update only if local modal changes
-syncit.syncOut(40, playerMovement);
+syncit.syncOut(playerMovement);
 // update only if global changes occur
-syncit.syncIn(42, gameState);
+syncit.syncIn(gameState);
 ```
 ##Examples
 On the client
