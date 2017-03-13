@@ -45,6 +45,12 @@ function SyncIt(io) {
     //   * id
     // }
     this.syncObjects = [];
+    /**
+     * Snapshot of all old sync objects of the last sync state.
+     *
+     * @type {Array}
+     */
+    this.socketData = [];
 
 
     // init io as it is connected
@@ -101,7 +107,7 @@ SyncIt.prototype.syncObject = function (syncObject) {
         receivers = syncObject.receivers;
     }
 
-    // send sync messages
+    // send sync message
     var syncMessage = {
 
     };

@@ -61,9 +61,25 @@ io.on('connection', function (connected) {
 server.listen(3000);
 
 server.on("listening", function () {
-    // init test
-    console.log("Listening.");
+
+    // sync every 100ms
+    setTimeout(function () {
+        syncIt.syncNow();
+    }, 100);
+
+
+
+
+
+
+
 });
+
+
+
+
+/* HELPER */
+
 
 function normalizePort(val) {
     var port = parseInt(val, 10);
