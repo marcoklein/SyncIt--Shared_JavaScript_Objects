@@ -20,6 +20,7 @@ var Delta = function() {
  * @return {*}
  */
 Delta.prototype.compare = function (currentObject, oldObject, parentKey, delta) {
+    var self = this;
     if (!parentKey) {
         parentKey = "";
     }
@@ -45,7 +46,7 @@ Delta.prototype.compare = function (currentObject, oldObject, parentKey, delta) 
             var oldKey = oldKeys[j];
             var oldValue = oldObject[oldKey];
             if (!currentObject.hasOwnProperty(oldKey)) {
-                setProperty(delta.removed, parentKeyPrefix + (Array.isArray(oldValue) ? "@" : "") + oldKey, oldValue);
+                self.setProperty(delta.removed, parentKeyPrefix + (Array.isArray(oldValue) ? "@" : "") + oldKey, oldValue);
             }
         }
     }
@@ -66,18 +67,18 @@ Delta.prototype.compare = function (currentObject, oldObject, parentKey, delta) 
             // has property changed?
             if (Array.isArray(value)) {
                 // property is an array -> loop through array to compare it
-                compareDelta(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
+                self.compare(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
 
 
             } else if (typeof value === "object") {
                 // go through object
-                compareDelta(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
+                self.compare(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
 
 
             } else if (value !== oldObject[key]) {
                 // value has changed
                 // => add it to delta
-                setProperty(delta.updated, newParentKey, value);
+                self.setProperty(delta.updated, newParentKey, value);
             }
         } else {
             // property does not exist in second object => added
@@ -87,15 +88,15 @@ Delta.prototype.compare = function (currentObject, oldObject, parentKey, delta) 
             if (Array.isArray(value)) {
                 // create array in second object
                 // loop through array
-                compareDelta(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
+                self.compare(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
             } else if (typeof value === "object") {
                 // loop through object
                 // go through object
-                compareDelta(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
+                self.compare(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
             }
             // add key if not already added (through array or object looping)
             if (currentObject.hasOwnProperty(key)) {
-                setProperty(delta.added, newParentKey, value);
+                self.setProperty(delta.added, newParentKey, value);
             }
         }
     }
