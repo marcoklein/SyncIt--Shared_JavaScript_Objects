@@ -19,7 +19,7 @@ var a = {
                 number: 10
             }
         ],
-        "@a": "test"
+        "a": "test"
     }
 };
 var b = {
