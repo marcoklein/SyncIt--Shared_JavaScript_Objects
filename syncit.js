@@ -283,12 +283,13 @@ function compareDelta(currentObject, oldObject, parentKey, delta) {
 
     // compare keys with keys of old object to detect removals
     if (oldObject) {
+        // TODO integrate this into looping through current object keys for better performance
         var oldKeys = Object.keys(oldObject);
-        for (var i = 0; i < keys.length; i++) {
-            var oldKey = oldKeys[i];
+        for (var j = 0; j < oldKeys.length; j++) {
+            var oldKey = oldKeys[j];
             var oldValue = oldObject[oldKey];
             if (!currentObject.hasOwnProperty(oldKey)) {
-                setProperty(delta.removed, parentKeyPrefix + (Array.isArray(oldValue) ? "@" : "") + oldKey, null);
+                setProperty(delta.removed, parentKeyPrefix + (Array.isArray(oldValue) ? "@" : "") + oldKey, oldValue);
             }
         }
     }
@@ -430,18 +431,34 @@ function applyDelta(object, delta) {
 
 console.log("Comparing delta.");
 var a = {
-    test: 10,
     object: {
-        text: "prop1",
-        number: 10
-    },
-    emptyArray: []
+        text: "ttttext",
+        number: 10,
+        myArray: [
+            {
+                key1: "prop1",
+                key2: 10
+            },
+            {
+                text: "prop1",
+                number: 10
+            }
+        ]
+    }
 };
 var b = {
-    test: 12,
     object: {
         text: "jkh",
-        deleted: "i got deleted"
+        myArray: [
+            {
+                text: "prop1",
+                number: 10
+            },
+            {
+                text: "prop2",
+                number: 10
+            }
+        ]
     }
 };
 
