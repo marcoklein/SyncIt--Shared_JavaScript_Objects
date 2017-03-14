@@ -257,12 +257,12 @@ function getDelta(o, n, comparator)  {
  *   - deleted: [{}, {}, ...]
  *   - changed: [{}, {}, ...]
  *
- * @param first
- * @param second
+ * @param currentObject
+ * @param oldObject
  * @param parentKey
  * @param delta
  */
-function compareDelta(first, second, parentKey, delta) {
+function compareDelta(currentObject, oldObject, parentKey, delta) {
     console.log("Parent key: " + parentKey);
     if (!parentKey) {
         parentKey = "";
@@ -279,68 +279,65 @@ function compareDelta(first, second, parentKey, delta) {
     var parentKeyPrefix = (parentKey === "" ? "" : parentKey + ".");
 
     // loop through keys of root
-    var keys = Object.keys(first);
-    console.log("object keys: " + keys);
+    var keys = Object.keys(currentObject);
+
+    // compare keys with keys of old object to detect removals
+    if (oldObject) {
+        var oldKeys = Object.keys(oldObject);
+        for (var i = 0; i < keys.length; i++) {
+            var oldKey = oldKeys[i];
+            var oldValue = oldObject[oldKey];
+            if (!currentObject.hasOwnProperty(oldKey)) {
+                setProperty(delta.removed, parentKeyPrefix + (Array.isArray(oldValue) ? "@" : "") + oldKey, null);
+            }
+        }
+    }
+
+    // compare keys of current object with old object
     for (var i = 0; i < keys.length; i++) {
         // extract current key we are comparing
         var key = keys[i];
-        var value = first[key];
+        var value = currentObject[key];
         // create the pointer that points to this key
         var newParentKey = parentKeyPrefix + (Array.isArray(value) ? "@" : "") + key;
 
-        console.log("Comparing key " + key);
-
         // has second object the key?
-        if (second && second.hasOwnProperty(key)) {
+        if (oldObject && oldObject.hasOwnProperty(key)) {
             // property exists in second object => updated
+
             // compare properties
-            console.log("has property " + key);
             // has property changed?
             if (Array.isArray(value)) {
-                console.log("is array");
                 // property is an array -> loop through array to compare it
-                compareDelta(first[key], second ? second[key] : null, newParentKey, delta);
+                compareDelta(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
 
-
-                // TODO add property if it has not been added
-                if (!first.hasOwnProperty(key)) {
-                    // TODO test if second object value may be an array or object => then call deleted?rough array or object looping)
-                    objectChange[newKey] = value;
-                    delta.updated.push(objectChange);
-                }
 
             } else if (typeof value === "object") {
                 // go through object
-                compareDelta(first[key], second ? second[key] : null, newParentKey, delta);
+                compareDelta(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
 
 
-            } else if (value !== second[key]) {
-                // what does the second object has?
-                // TODO CHECK FOR SECOND KEY PROPERTIES TO DETECT DELETIONS!
-                console.log("Neither array nor object.");
+            } else if (value !== oldObject[key]) {
                 // value has changed
                 // => add it to delta
                 setProperty(delta.updated, newParentKey, value);
             }
         } else {
             // property does not exist in second object => added
-            console.log("new property: " + key);
+
             // loop through property
             // if it contains an object or an array
             if (Array.isArray(value)) {
                 // create array in second object
                 // loop through array
-                compareDelta(first[key], second ? second[key] : null, newParentKey, delta);
+                compareDelta(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
             } else if (typeof value === "object") {
                 // loop through object
                 // go through object
-                compareDelta(first[key], second ? second[key] : null, newParentKey, delta);
-
-                // TODO design decision: should arrays or objects which are empty key be added?
-                // if you want to do so, simply add a check if the key exists on the second object
+                compareDelta(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
             }
             // add key if not already added (through array or object looping)
-            if (first.hasOwnProperty(key)) {
+            if (currentObject.hasOwnProperty(key)) {
                 setProperty(delta.added, newParentKey, value);
             }
         }
@@ -365,18 +362,9 @@ function setProperty(object, pointer, value) {
     var keys = pointer.split(".");
     for (var i = 0; i < keys.length - 1; i++) {
         var key = keys[i];
-        if (key.charAt(0) === "@") {
-            // array element
-            //key = key.slice(1);
-            if (!element[key]) {
-                // create array
-                element[key] = {};
-                console.log("array element");
-            }
-        } else if (!element[key]) {
+        if (!element[key]) {
             // object element
             element[key] = {};
-            console.log("object element");
         }
         element = element[key];
     }
@@ -447,43 +435,25 @@ var a = {
         text: "prop1",
         number: 10
     },
-    array: [
-        "asdf",
-        [
-            {
-                title: "blaaa",
-                prop: "pppp",
-                addddded: "thast"
-            }
-        ]
-    ]
+    emptyArray: []
 };
 var b = {
     test: 12,
     object: {
-        text: "jkh"
-    },
-    array: [
-        "asdf",
-        [
-            {
-                title: "blub",
-                prop: "test",
-            }
-        ]
-    ]
+        text: "jkh",
+        deleted: "i got deleted"
+    }
 };
 
-console.log(Object.keys(a));
 var delta = compareDelta(a, b);
 
 console.log("Delta: " + JSON.stringify(delta));
 
 
 
-var pointer = ["list", 0];
+//var pointer = ["list", 0];
 
-setProperty(a, "@list.3", "another");
+//setProperty(a, "@list.3", "another");
 //console.log("Get element test: asdf === " + getProperty(a, "list.1"));
 
 
