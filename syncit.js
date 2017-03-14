@@ -282,6 +282,9 @@ function compareDelta(first, second, parentKey, delta, firstParentElement, secon
         };
     }
 
+
+
+
     // helper to determine new parent key
     var parentKeyPrefix = (parentKey === "" ? "" : parentKey + ".");
 
@@ -292,29 +295,14 @@ function compareDelta(first, second, parentKey, delta, firstParentElement, secon
     for (var i = 0; i < keys.length; i++) {
         // extract current key we are comparing
         var key = keys[i];
-        var newParentKey = parentKeyPrefix + key;
+        var value = firstParentElement[key];
+        // create the pointer that points to this key
+        var newParentKey = parentKeyPrefix + (Array.isArray(value) ? "@" : "") + key;
 
         console.log("Comparing key " + key);
 
         // has second object the key?
-
-        var objectChange = {};
-
-        var value = firstParentElement[key];
-        // compare array elements
-        if (Array.isArray(firstParentElement)) {
-            console.log("root is an array");
-            // compare array items
-            firstParentElement.forEach(function (item, index) {
-                // TODO compare each array item
-            });
-
-
-            // add property if it has not been added
-            // TODO test if second object value may be an array or object => then call deleted?
-
-
-        } else if (second.hasOwnProperty(key)) {
+        if (second.hasOwnProperty(key)) {
             // property exists in second object => updated
             // compare properties
             console.log("has property " + key);
@@ -323,10 +311,16 @@ function compareDelta(first, second, parentKey, delta, firstParentElement, secon
                 console.log("is array");
                 value.forEach(function (item, index) {
                     // compare each item
-                    compareDelta(first, second, newKey, delta, firstRootElement[key]);
+                    if (Array.isArray(item) || typeof item === "object") {
+                        compareDelta(first, second, newParentKey + "." + index, delta, item, item);
+                    } else {
+                        // test if value has changed
+                        console.log("Set property " + (newParentKey + "." + index) + " to " + item);
+                        setProperty(delta.updated, newParentKey + "." + index, item);
+                    }
                 });
                 // add property if it has not been added
-                if (!rootElement.hasOwnProperty(key)) {
+                if (!firstParentElement.hasOwnProperty(key)) {
                     // TODO test if second object value may be an array or object => then call deleted?rough array or object looping)
                     objectChange[newKey] = value;
                     delta.updated.push(objectChange);
@@ -390,7 +384,21 @@ function setProperty(object, pointer, value) {
     var element = object;
     var keys = pointer.split(".");
     for (var i = 0; i < keys.length - 1; i++) {
-        element = element[keys[i]];
+        var key = keys[i];
+        if (key.charAt(0) === "@") {
+            // array element
+            key = key.slice(1);
+            if (!element[key]) {
+                // create array
+                element[key] = [];
+                console.log("array element");
+            }
+        } else if (!element[key]) {
+            // object element
+            element[key] = {};
+            console.log("object element");
+        }
+        element = element[key];
     }
     element[keys[keys.length - 1]] = value;
 }
@@ -455,7 +463,7 @@ var a = {
         number: 10
     },*/
     list: [
-        "asdf",
+        "this is SPARTAA",
         12
     ]
 };
@@ -477,7 +485,6 @@ console.log("Delta: " + JSON.stringify(delta));
 
 
 
-console.log("Second: " + JSON.stringify(delta));
 
 var pointer = ["list", 0];
 
