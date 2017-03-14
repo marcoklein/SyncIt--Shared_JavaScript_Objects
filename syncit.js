@@ -44,7 +44,8 @@ function SyncIt(io) {
     //   * receivers
     //   * id
     // }
-    this.syncObjects = [];
+    this.syncObjectArray = [];
+    this.syncObjectMap = {};
     /**
      * Snapshot of all old sync objects of the last sync state.
      *
@@ -79,8 +80,8 @@ function SyncIt(io) {
             self.log("Accepted client " + name);
 
             // send client all shared objects
-            for (var i = 0; i < self.syncObjects.length; i++) {
-                socket.emit("new_object", self.syncObjects[i]);
+            for (var i = 0; i < self.syncObjectArray.length; i++) {
+                socket.emit("new_object", self.syncObjectArray[i]);
             }
 
             // INITIALIZE SOCKET AND PROTOCOL
@@ -94,7 +95,7 @@ function SyncIt(io) {
             socket.on("sync_object", function (data) {
                 console.log("Sync object request: " + JSON.stringify(data));
                 // TODO check provided data
-                //self.syncObjects = data;
+                //self.syncObjectArray = data;
             });
 
             socket.on("disconnect", function (socket) {
@@ -117,7 +118,7 @@ function SyncIt(io) {
 SyncIt.prototype.syncNow = function () {
     var self = this;
     // TODO merge sync messages
-    self.syncObjects.forEach(function (syncObject, index, syncObjects) {
+    self.syncObjectArray.forEach(function (syncObject, index, syncObjects) {
         self.syncObject(syncObject);
     });
 };
@@ -154,8 +155,6 @@ SyncIt.prototype.syncObject = function (syncObject) {
  * @return {*}
  */
 SyncIt.prototype.sync = function (id, object, receivers) {
-    id = id || this.createNewId();
-
     // create sync object
     var syncObject =  {
         object: object,
@@ -163,13 +162,9 @@ SyncIt.prototype.sync = function (id, object, receivers) {
         id: id
     };
     // add sync object
-    this.syncObjects.push(syncObject);
+    this.syncObjectArray.push(syncObject);
 
     return syncObject;
-};
-
-SyncIt.prototype.sendSyncMessage = function () {
-
 };
 
 SyncIt.prototype.sendMessage = function (message, receivers) {
@@ -194,25 +189,6 @@ SyncIt.prototype.sendMessage = function (message, receivers) {
     }
 };
 
-/**
- * Creates a new unique id.
- *
- * @return {number}
- */
-SyncIt.prototype.createNewId = function () {
-    console.warn("WARN: created new id: Id may not be unique.");
-    if (this.lastId == null) {
-        this.lastId = -1;
-    }
-    // increase id
-    // TODO test if the id is already in use
-    this.lastId++;
-    var newId = this.lastId;
-
-    this.log("Created new id: " + newId);
-    
-    return newId;
-};
 
 /**
  * Prints the given msg on the console if this.debug = true;

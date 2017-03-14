@@ -4,7 +4,7 @@ function SyncIt(socket) {
 
     this.socket = socket;
     this.syncObjectMap = {};
-    this.syncObjects = [];
+    this.syncObjectArray = [];
 
     var init = function () {
         socket.on("connect", function() {
