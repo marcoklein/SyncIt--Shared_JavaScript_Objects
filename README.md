@@ -1,16 +1,16 @@
-#Sync It!
+# Sync It!
 Sync JavaScript objects across the network.
 
-##Easy to Use
+## Easy to Use
 SyncIt is an easy to use WebSocket based synchronize library.
 
-##SyncIt Object
+## SyncIt Object
 As you created a syncit instance using `var syncit = new SyncIt(webSocket);`, providing a valid `WebSocket` object, you can access several methods:
 
 * `webSocket`: Get the web socket SyncIt is using.
 * `getObject(int)`: Get the object with the given id.
 
-###Sync Modes
+### Sync Modes
 ```
 // sync everything
 syncit.sync(38, chat);
@@ -19,7 +19,7 @@ syncit.syncOut(40, playerMovement);
 // update only if global changes occur
 syncit.syncIn(42, gameState);
 ```
-##Examples
+## Examples
 On the client
 ```
 var webSocket = new WebSocket(url, [protocol] );
