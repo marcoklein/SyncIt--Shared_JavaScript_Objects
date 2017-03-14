@@ -13,17 +13,24 @@ As you created a syncit instance using `var syncit = new SyncIt(webSocket);`, pr
 ### Sync Modes
 ```
 // sync everything
-syncit.sync(38, chat);
+syncit.sync("chat", chat);
 // update only if local modal changes
-syncit.syncOut(40, playerMovement);
+syncit.syncOut("player_movement", playerMovement);
 // update only if global changes occur
-syncit.syncIn(42, gameState);
+syncit.syncIn("game_state", gameState);
 ```
 ## Examples
 On the client
 ```
 var webSocket = new WebSocket(url, [protocol] );
 var syncit = new SyncIt(webSocket);
-// sync with id 42
-syncit.sync(42, gameState);
+// sync with id "game_state"
+syncit.sync("game_state", gameState);
 ```
+
+## Messages
+Internally the following messages are used:
+ - `handshake`
+ - `sync`
+ - `sync_object`
+ - `initial_data`
