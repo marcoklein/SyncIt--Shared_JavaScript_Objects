@@ -170,8 +170,6 @@ Delta.prototype.getProperty = function (object, pointer) {
 };
 
 Delta.prototype.applyDelta = function (object, delta) {
-    var self = this;
-
     /**
      * Go recursively through items and update/add them.
      *
@@ -238,8 +236,6 @@ Delta.prototype.applyDelta = function (object, delta) {
         }
     };
     applyRemoved(object, delta.removed);
-
-
 
     return object;
 };
