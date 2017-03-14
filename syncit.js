@@ -259,21 +259,13 @@ function getDelta(o, n, comparator)  {
  *
  * @param first
  * @param second
- * @param root
+ * @param parentKey
  * @param delta
  */
-function compareDelta(first, second, parentKey, delta, firstParentElement, secondParentElement) {
+function compareDelta(first, second, parentKey, delta) {
     console.log("Parent key: " + parentKey);
-    var newRoot;
     if (!parentKey) {
         parentKey = "";
-        firstParentElement = first;
-        secondParentElement = second;
-        newRoot = true;
-    } else if (!firstParentElement) {
-        // get root element at root position
-        firstParentElement = getProperty(first, parentKey);
-        secondParentElement = getProperty(second, parentKey);
     }
     if (!delta) {
         delta = {
@@ -283,50 +275,23 @@ function compareDelta(first, second, parentKey, delta, firstParentElement, secon
         };
     }
 
-    // TODO this code may help (:
-
-    /*value.forEach(function (item, index) {
-     // compare each item
-     if (Array.isArray(item)) {
-     console.log("item of array is an array or an object => compare it");
-     // array is an object
-     compareDelta(first, second, newParentKey + ".@" + index, delta, firstParentElement[index], secondParentElement[index]);
-     } else if (typeof item === "object") {
-     // item is an object
-     console.log("item of array is an object!");
-     compareDelta(first, second, newParentKey + "." + index, delta, firstParentElement[index], secondParentElement[index]);
-     } else {
-     // test if value has changed
-     console.log("Set property " + (newParentKey + "." + index) + " to " + item);
-     if (!secondParentElement[key][index]) {
-     // item added
-     setProperty(delta.added, newParentKey + "." + index, item);
-     } else if (firstParentElement[key][index] !== secondParentElement[key][index]) {
-     // value changed
-     setProperty(delta.updated, newParentKey + "." + index, item);
-     }
-     }
-     });*/
-
-
     // helper to determine new parent key
     var parentKeyPrefix = (parentKey === "" ? "" : parentKey + ".");
 
-
     // loop through keys of root
-    var keys = Object.keys(firstParentElement);
+    var keys = Object.keys(first);
     console.log("object keys: " + keys);
     for (var i = 0; i < keys.length; i++) {
         // extract current key we are comparing
         var key = keys[i];
-        var value = firstParentElement[key];
+        var value = first[key];
         // create the pointer that points to this key
         var newParentKey = parentKeyPrefix + (Array.isArray(value) ? "@" : "") + key;
 
         console.log("Comparing key " + key);
 
         // has second object the key?
-        if (secondParentElement && secondParentElement.hasOwnProperty(key)) {
+        if (second && second.hasOwnProperty(key)) {
             // property exists in second object => updated
             // compare properties
             console.log("has property " + key);
@@ -334,11 +299,11 @@ function compareDelta(first, second, parentKey, delta, firstParentElement, secon
             if (Array.isArray(value)) {
                 console.log("is array");
                 // property is an array -> loop through array to compare it
-                compareDelta(first, second, newParentKey, delta, firstParentElement[key], secondParentElement ? secondParentElement[key] : null);
+                compareDelta(first[key], second ? second[key] : null, newParentKey, delta);
 
 
                 // TODO add property if it has not been added
-                if (!firstParentElement.hasOwnProperty(key)) {
+                if (!first.hasOwnProperty(key)) {
                     // TODO test if second object value may be an array or object => then call deleted?rough array or object looping)
                     objectChange[newKey] = value;
                     delta.updated.push(objectChange);
@@ -346,10 +311,10 @@ function compareDelta(first, second, parentKey, delta, firstParentElement, secon
 
             } else if (typeof value === "object") {
                 // go through object
-                compareDelta(first, second, newParentKey, delta, firstParentElement[key], secondParentElement ? secondParentElement[key] : null);
+                compareDelta(first[key], second ? second[key] : null, newParentKey, delta);
 
 
-            } else if (value !== secondParentElement[key]) {
+            } else if (value !== second[key]) {
                 // what does the second object has?
                 // TODO CHECK FOR SECOND KEY PROPERTIES TO DETECT DELETIONS!
                 console.log("Neither array nor object.");
@@ -365,17 +330,17 @@ function compareDelta(first, second, parentKey, delta, firstParentElement, secon
             if (Array.isArray(value)) {
                 // create array in second object
                 // loop through array
-                compareDelta(first, second, newParentKey, delta, firstParentElement[key], secondParentElement ? secondParentElement[key] : null);
+                compareDelta(first[key], second ? second[key] : null, newParentKey, delta);
             } else if (typeof value === "object") {
                 // loop through object
                 // go through object
-                compareDelta(first, second, newParentKey, delta, firstParentElement[key], secondParentElement ? secondParentElement[key] : null);
+                compareDelta(first[key], second ? second[key] : null, newParentKey, delta);
 
                 // TODO design decision: should arrays or objects which are empty key be added?
                 // if you want to do so, simply add a check if the key exists on the second object
             }
             // add key if not already added (through array or object looping)
-            if (firstParentElement.hasOwnProperty(key)) {
+            if (first.hasOwnProperty(key)) {
                 setProperty(delta.added, newParentKey, value);
             }
         }
