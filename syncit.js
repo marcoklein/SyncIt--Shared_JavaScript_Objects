@@ -262,15 +262,17 @@ function getDelta(o, n, comparator)  {
  * @param root
  * @param delta
  */
-function compareDelta(first, second, root, delta, rootElement) {
+function compareDelta(first, second, pointer, delta, firstRootElement, secondRootElement) {
     var newRoot;
-    if (!root) {
-        root = "";
-        rootElement = first;
+    if (!pointer) {
+        pointer = [];
+        firstRootElement = first;
+        secondRootElement = second;
         newRoot = true;
     } else if (!rootElement) {
-        rootElement = first;
-        // TODO get root element at root position (parse dots)
+        // get root element at root position
+        firstRootElement = getElement(first, pointer);
+        secondRootElement = getElement(second, pointer);
     }
     if (!delta) {
         delta = {
@@ -279,42 +281,38 @@ function compareDelta(first, second, root, delta, rootElement) {
             updated: []
         };
     }
-    // prepare next root (use a . or nothing?)
-    var nextRoot = (newRoot ? "" : root + ".");
 
-    console.log("root: " + root);
 
     // loop through keys of root
-    var keys = Object.keys(rootElement);
+    var keys = Object.keys(firstRootElement);
     console.log("object keys: " + keys);
     for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
-        var newKey = nextRoot + key;
-        console.log("new key: " + newKey);
 
         console.log("Comparing key " + key);
         // has second object the key?
 
         var objectChange = {};
 
-        // TODO MAP ARRAYS TO OBJECTS FORMAT array.0, array.1, ...
-
-
-        var value = rootElement[key];
+        var value = firstRootElement[key];
         // compare array elements
-        if (Array.isArray(rootElement)) {
+        if (Array.isArray(firstRootElement)) {
             console.log("root is an array");
             // compare array items
-            rootElement.forEach(function (item, index) {
+            firstRootElement.forEach(function (item, index) {
                 // TODO compare each array item
             });
 
 
             // add property if it has not been added
             // TODO test if second object value may be an array or object => then call deleted?
-            objectChange[newKey] = [];
-            objectChange[newKey].push(value);
-            delta.updated.push(objectChange);
+
+            var newPointer = [];
+            pointer.forEach(function (p, i) {
+                newPointer.push(p);
+            });
+            delta.updated.push(newPointer);
+            delta.updated.push(value);
 
         } else if (second.hasOwnProperty(key)) {
             // compare properties
@@ -324,7 +322,7 @@ function compareDelta(first, second, root, delta, rootElement) {
                 console.log("is array");
                 value.forEach(function (item, index) {
                     // compare each item
-                    compareDelta(first, second, newKey, delta, rootElement[key]);
+                    compareDelta(first, second, newKey, delta, firstRootElement[key]);
                 });
                 // add property if it has not been added
                 if (!rootElement.hasOwnProperty(key)) {
@@ -346,11 +344,15 @@ function compareDelta(first, second, root, delta, rootElement) {
                 console.log("Neither array nor object.");
                 // value has changed
                 // => add it to delta
-                if (Array.isArray(rootElement)) {
-                    root.push(value);
+                if (Array.isArray(firstRootElement)) {
+                    delta.updated.push(value);
                 } else {
-                    objectChange[newKey] = value;
-                    delta.updated.push(objectChange);
+                    var newPointer = [];
+                    pointer.forEach(function (p, i) {
+                        newPointer.push(p);
+                    });
+                    delta.updated.push(newPointer);
+                    delta.updated.push(value);
                 }
             }
         } else {
@@ -395,7 +397,16 @@ function compareDelta(first, second, root, delta, rootElement) {
  * @param pointer
  */
 function getElement(object, pointer) {
-
+    var element = object;
+    // array elements are marked with an "@"
+    var keys = pointer.split(".");
+    keys.forEach(function (key) {
+        if (key[0] === "@") {
+            // this is an array
+        }
+        element = element[key];
+    });
+    return element;
 }
 
 function applyDelta(object, delta) {
@@ -435,10 +446,10 @@ function applyDelta(object, delta) {
 console.log("Comparing delta.");
 var a = {
     test: 10,
-    object: {
+    /*object: {
         text: "prop1",
         number: 10
-    },
+    },*/
     list: [
         "asdf",
         12
@@ -446,16 +457,16 @@ var a = {
 };
 var b = {
     test: 12,
-    object: {
+    /*object: {
         text: "jkh"
-    },
+    },*/
     list: [
         "a",
         1
     ]
 };
 
-var realDelta = {
+var delta = {
     added: [],
     updated: ["test", 10],
     removed: []
@@ -463,22 +474,24 @@ var realDelta = {
 
 
 console.log(Object.keys(a));
-var delta = compareDelta(a, b);
+//var delta = compareDelta(a, b);
 
 console.log("Delta: " + JSON.stringify(delta));
-
-var testList = [
-
-];
-
-Object.observe(a, function (resp) {
-    console.log("observe: " + JSON.stringify(resp));
-});
 
 
 
 console.log("Second: " + JSON.stringify(delta));
 
+var pointer = ["list", 0];
+
+console.log("Get element test: asdf === " + getElement(a, "list.1"));
+
+var testList = {
+    list: []
+};
+testList["list"]["1"] = "bla";
+
+console.log("Test list: " + JSON.stringify(testList));
 
 
 module.exports = SyncIt;
