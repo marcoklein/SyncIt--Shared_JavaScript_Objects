@@ -262,44 +262,50 @@ function getDelta(o, n, comparator)  {
  * @param root
  * @param delta
  */
-function compareDelta(first, second, pointer, delta, firstRootElement, secondRootElement) {
+function compareDelta(first, second, parentKey, delta, firstParentElement, secondParentElement) {
     var newRoot;
-    if (!pointer) {
-        pointer = [];
-        firstRootElement = first;
-        secondRootElement = second;
+    if (!parentKey) {
+        parentKey = "";
+        firstParentElement = first;
+        secondParentElement = second;
         newRoot = true;
-    } else if (!rootElement) {
+    } else {
         // get root element at root position
-        firstRootElement = getElement(first, pointer);
-        secondRootElement = getElement(second, pointer);
+        firstParentElement = getProperty(first, parentKey);
+        secondParentElement = getProperty(second, parentKey);
     }
     if (!delta) {
         delta = {
-            added: [],
-            removed: [],
-            updated: []
+            added: {},
+            removed: {},
+            updated: {}
         };
     }
 
+    // helper to determine new parent key
+    var parentKeyPrefix = (parentKey === "" ? "" : parentKey + ".");
+
 
     // loop through keys of root
-    var keys = Object.keys(firstRootElement);
+    var keys = Object.keys(firstParentElement);
     console.log("object keys: " + keys);
     for (var i = 0; i < keys.length; i++) {
+        // extract current key we are comparing
         var key = keys[i];
+        var newParentKey = parentKeyPrefix + key;
 
         console.log("Comparing key " + key);
+
         // has second object the key?
 
         var objectChange = {};
 
-        var value = firstRootElement[key];
+        var value = firstParentElement[key];
         // compare array elements
-        if (Array.isArray(firstRootElement)) {
+        if (Array.isArray(firstParentElement)) {
             console.log("root is an array");
             // compare array items
-            firstRootElement.forEach(function (item, index) {
+            firstParentElement.forEach(function (item, index) {
                 // TODO compare each array item
             });
 
@@ -307,14 +313,9 @@ function compareDelta(first, second, pointer, delta, firstRootElement, secondRoo
             // add property if it has not been added
             // TODO test if second object value may be an array or object => then call deleted?
 
-            var newPointer = [];
-            pointer.forEach(function (p, i) {
-                newPointer.push(p);
-            });
-            delta.updated.push(newPointer);
-            delta.updated.push(value);
 
         } else if (second.hasOwnProperty(key)) {
+            // property exists in second object => updated
             // compare properties
             console.log("has property " + key);
             // has property changed?
@@ -344,20 +345,11 @@ function compareDelta(first, second, pointer, delta, firstRootElement, secondRoo
                 console.log("Neither array nor object.");
                 // value has changed
                 // => add it to delta
-                if (Array.isArray(firstRootElement)) {
-                    delta.updated.push(value);
-                } else {
-                    var newPointer = [];
-                    pointer.forEach(function (p, i) {
-                        newPointer.push(p);
-                    });
-                    delta.updated.push(newPointer);
-                    delta.updated.push(value);
-                }
+                setProperty(delta.updated, newParentKey, value);
             }
         } else {
+            // property does not exist in second object => added
             console.log("new property: " + key)
-            // => property added
             // loop through property
             // if it contains an object or an array
             if (Array.isArray(value)) {
@@ -375,7 +367,7 @@ function compareDelta(first, second, pointer, delta, firstRootElement, secondRoo
                 // if you want to do so, simply add a check if the key exists on the second object
             }
             // add key if not already added (through array or object looping)
-            if (Array.isArray(rootElement)) {
+            if (Array.isArray(firstParentElement)) {
                 root.push(value);
             } else if (rootElement.hasOwnProperty(key)) {
                 objectChange[newKey] = value;
@@ -388,6 +380,22 @@ function compareDelta(first, second, pointer, delta, firstRootElement, secondRoo
 }
 
 /**
+ * Sets the value of the given object at the specified location.
+ *
+ * @param object
+ * @param pointer Points to the attribute. F.e. "list.0.name".
+ * @param value
+ */
+function setProperty(object, pointer, value) {
+    var element = object;
+    var keys = pointer.split(".");
+    for (var i = 0; i < keys.length - 1; i++) {
+        element = element[keys[i]];
+    }
+    element[keys[keys.length - 1]] = value;
+}
+
+/**
  * Gets the element using the given pointer -> event possible for arrays.
  *
  * A pointer is an array of keys that eventually lead to the element.
@@ -396,14 +404,10 @@ function compareDelta(first, second, pointer, delta, firstRootElement, secondRoo
  * @param object
  * @param pointer
  */
-function getElement(object, pointer) {
+function getProperty(object, pointer) {
     var element = object;
-    // array elements are marked with an "@"
     var keys = pointer.split(".");
     keys.forEach(function (key) {
-        if (key[0] === "@") {
-            // this is an array
-        }
         element = element[key];
     });
     return element;
@@ -466,15 +470,8 @@ var b = {
     ]
 };
 
-var delta = {
-    added: [],
-    updated: ["test", 10],
-    removed: []
-};
-
-
 console.log(Object.keys(a));
-//var delta = compareDelta(a, b);
+var delta = compareDelta(a, b);
 
 console.log("Delta: " + JSON.stringify(delta));
 
@@ -484,14 +481,9 @@ console.log("Second: " + JSON.stringify(delta));
 
 var pointer = ["list", 0];
 
-console.log("Get element test: asdf === " + getElement(a, "list.1"));
+setProperty(a, "list.0", "change");
+console.log("Get element test: asdf === " + getProperty(a, "list.1"));
 
-var testList = {
-    list: []
-};
-testList["list"]["1"] = "bla";
-
-console.log("Test list: " + JSON.stringify(testList));
 
 
 module.exports = SyncIt;
