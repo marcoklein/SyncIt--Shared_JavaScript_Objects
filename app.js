@@ -80,7 +80,7 @@ server.on("listening", function () {
 
 
     // sync the test object with the client
-    syncIt.sync(testObject);
+    syncIt.sync("test_object", testObject);
 
 
 

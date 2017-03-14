@@ -10,7 +10,7 @@
  **********************************/
 
 /* Imports */
-//var SocketIo = require("socket.io");
+var Delta = require("./delta");
 
 
 /* Constants */
@@ -50,12 +50,16 @@ function SyncIt(io) {
      *
      * @type {Array}
      */
-    this.socketData = [];
+    this.socketData = {};
+
+    this.sockets = {};
 
 
     // init socket io as it gets connected
-    this.io.on('connection', function (socket) {
-        self.log("New SyncIt connection.");
+    this.io.on("connection", function (socket) {
+
+        self.log("New SyncIt connection: " + socket.id);
+        // wait for the handshake message of the socket
         socket.on("handshake", function (handshake) {
             self.log("Received handshake message: " + JSON.stringify(handshake));
             // evaluate handshake message
@@ -64,24 +68,45 @@ function SyncIt(io) {
             if (!name) {
                 console.error("Client with wrong handshake format tried to connect.");
                 socket.disconnect();
-                // TODO put socket into right namespace (accepted)
             }
+
+
+            // store sockets in a map so a sync can reach them
+            self.sockets[socket.id] = socket;
+            self.socketData[socket.id] = {};
 
             // client accepted
             self.log("Accepted client " + name);
 
-            // TODO send client all objects
+            // send client all shared objects
+            for (var i = 0; i < self.syncObjects.length; i++) {
+                socket.emit("new_object", self.syncObjects[i]);
+            }
+
+            // INITIALIZE SOCKET AND PROTOCOL
+
+            socket.on("sync", function (data, two) {
+                self.log("SyncIt event: " + JSON.stringify(data) + ", " + two);
+            });
+            /**
+             * Request to sync an object.
+             */
+            socket.on("sync_object", function (data) {
+                console.log("Sync object request: " + JSON.stringify(data));
+                // TODO check provided data
+                //self.syncObjects = data;
+            });
+
+            socket.on("disconnect", function (socket) {
+                self.log("SyncIt disconnected: " + socket.id);
+
+                // remove socket
+                delete self.sockets[socket.id];
+            });
 
         });
     });
-    this.io.on('event', function (data) {
-        self.log("SyncIt event: " + JSON.stringify(data));
-    });
-
-    this.io.on('disconnect', function (disconnected) {
-        self.log("SyncIt disconnected: " + disconnected)
-    });
-}
+};
 
 /* Methods */
 
@@ -91,6 +116,7 @@ function SyncIt(io) {
  */
 SyncIt.prototype.syncNow = function () {
     var self = this;
+    // TODO merge sync messages
     self.syncObjects.forEach(function (syncObject, index, syncObjects) {
         self.syncObject(syncObject);
     });
@@ -110,6 +136,7 @@ SyncIt.prototype.syncObject = function (syncObject) {
 
     // send sync message
     var syncMessage = {
+        id: syncObject.id,
         object: syncObject.object
     };
 
@@ -126,7 +153,7 @@ SyncIt.prototype.syncObject = function (syncObject) {
  * @param receivers
  * @return {*}
  */
-SyncIt.prototype.sync = function (object, receivers, id) {
+SyncIt.prototype.sync = function (id, object, receivers) {
     id = id || this.createNewId();
 
     // create sync object
@@ -173,6 +200,7 @@ SyncIt.prototype.sendMessage = function (message, receivers) {
  * @return {number}
  */
 SyncIt.prototype.createNewId = function () {
+    console.warn("WARN: created new id: Id may not be unique.");
     if (this.lastId == null) {
         this.lastId = -1;
     }
