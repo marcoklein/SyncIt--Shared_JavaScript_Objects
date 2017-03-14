@@ -19,7 +19,7 @@ var Delta = function() {
  * @param delta
  * @return {*}
  */
-Delta.prototype.compare = function (currentObject, oldObject, parentKey, delta) {
+Delta.prototype.getDelta = function (currentObject, oldObject, parentKey, delta) {
     var self = this;
     if (!parentKey) {
         parentKey = "";
@@ -38,7 +38,7 @@ Delta.prototype.compare = function (currentObject, oldObject, parentKey, delta) 
     // loop through keys of root
     var keys = Object.keys(currentObject);
 
-    // compare keys with keys of old object to detect removals
+    // getDelta keys with keys of old object to detect removals
     if (oldObject) {
         // TODO integrate this into looping through current object keys for better performance
         var oldKeys = Object.keys(oldObject);
@@ -46,12 +46,12 @@ Delta.prototype.compare = function (currentObject, oldObject, parentKey, delta) 
             var oldKey = oldKeys[j];
             var oldValue = oldObject[oldKey];
             if (!currentObject.hasOwnProperty(oldKey)) {
-                self.setProperty(delta.removed, parentKeyPrefix + (Array.isArray(oldValue) ? "@" : "") + oldKey, oldValue);
+                self.setPropertyNoArray(delta.removed, parentKeyPrefix + (Array.isArray(oldValue) ? "@" : "") + oldKey, oldValue);
             }
         }
     }
 
-    // compare keys of current object with old object
+    // getDelta keys of current object with old object
     for (var i = 0; i < keys.length; i++) {
         // extract current key we are comparing
         var key = keys[i];
@@ -63,22 +63,22 @@ Delta.prototype.compare = function (currentObject, oldObject, parentKey, delta) 
         if (oldObject && oldObject.hasOwnProperty(key)) {
             // property exists in second object => updated
 
-            // compare properties
+            // getDelta properties
             // has property changed?
             if (Array.isArray(value)) {
-                // property is an array -> loop through array to compare it
-                self.compare(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
+                // property is an array -> loop through array to getDelta it
+                self.getDelta(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
 
 
             } else if (typeof value === "object") {
                 // go through object
-                self.compare(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
+                self.getDelta(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
 
 
             } else if (value !== oldObject[key]) {
                 // value has changed
                 // => add it to delta
-                self.setProperty(delta.updated, newParentKey, value);
+                self.setPropertyNoArray(delta.updated, newParentKey, value);
             }
         } else {
             // property does not exist in second object => added
@@ -88,21 +88,21 @@ Delta.prototype.compare = function (currentObject, oldObject, parentKey, delta) 
             if (Array.isArray(value)) {
                 // create array in second object
                 // loop through array
-                self.compare(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
+                self.getDelta(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
             } else if (typeof value === "object") {
                 // loop through object
                 // go through object
-                self.compare(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
+                self.getDelta(currentObject[key], oldObject ? oldObject[key] : null, newParentKey, delta);
             }
             // add key if not already added (through array or object looping)
             if (currentObject.hasOwnProperty(key)) {
-                self.setProperty(delta.added, newParentKey, value);
+                self.setPropertyNoArray(delta.added, newParentKey, value);
             }
         }
     }
 
     return delta;
-}
+};
 
 /**
  * Sets the value of the given object at the specified location.
@@ -111,7 +111,7 @@ Delta.prototype.compare = function (currentObject, oldObject, parentKey, delta) 
  * @param pointer Points to the attribute. F.e. "list.0.name".
  * @param value
  */
-Delta.prototype.setProperty = function (object, pointer, value) {
+Delta.prototype.setPropertyNoArray = function (object, pointer, value) {
     var element = object;
     var keys = pointer.split(".");
     for (var i = 0; i < keys.length - 1; i++) {
@@ -123,7 +123,28 @@ Delta.prototype.setProperty = function (object, pointer, value) {
         element = element[key];
     }
     element[keys[keys.length - 1]] = value;
-}
+};
+
+Delta.prototype.setProperty = function (object, pointer, value) {
+    var element = object;
+    var keys = pointer.split(".");
+    for (var i = 0; i < keys.length - 1; i++) {
+        var key = keys[i];
+        if (key.charAt(0) === "@") {
+            // array element
+            key = key.slice(1);
+            if (!element[key]) {
+                // create an empty array
+                element[key] = [];
+            }
+        } else if (!element[key]) {
+            // object element
+            element[key] = {};
+        }
+        element = element[key];
+    }
+    element[keys[keys.length - 1]] = value;
+};
 
 /**
  * Gets the element using the given pointer -> event possible for arrays.
@@ -146,19 +167,48 @@ Delta.prototype.getProperty = function (object, pointer) {
         element = element[key];
     });
     return element;
-}
+};
 
 Delta.prototype.applyDelta = function (object, delta) {
-    delta.added.forEach(function (item, index) {
-    });
-    delta.removed.forEach(function (item, index) {
+    var self = this;
 
-    });
-    delta.updated.forEach(function (item, index) {
+    /**
+     * Go recursively through added items.
+     *
+     * @param object
+     * @param delta
+     */
+    var applyAdded = function (object, delta) {
+        var deltaKeys = Object.keys(delta);
+        for (var i = 0; i < deltaKeys.length; i++) {
+            var key = deltaKeys[i];
+            // is it an array?
+            if (key.charAt(0) === "@") {
+                var realKey = key.slice(1);
+                // has object property already?
+                if (!object[realKey]) {
+                    // add array
+                    object[realKey] = delta[key]
+                } else {
+                    // go through array
+                    applyAdded(object[realKey], delta[key]);
+                }
+            } else if (Array.isArray(delta[key])) {
+                applyAdded(object[key], delta[key]);
+            } else if (typeof delta[key] === "object") {
+                applyAdded(object[key], delta[key]);
+            } else {
+                object[key] = delta[key];
+            }
+        }
+    };
+    applyAdded(object, delta.added);
 
-    });
     return object;
-}
+};
+
+
+
 
 
 

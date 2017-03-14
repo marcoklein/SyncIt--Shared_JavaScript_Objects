@@ -18,7 +18,8 @@ var a = {
                 text: "prop1",
                 number: 10
             }
-        ]
+        ],
+        "@a": "test"
     }
 };
 var b = {
@@ -36,6 +37,21 @@ var b = {
         ]
     }
 };
+
+
+
+var delta = Delta.getDelta(a, b);
+
+
+console.log("Delta: " + JSON.stringify(delta));
+
+Delta.applyDelta(b, delta);
+
+console.log("Applying delta on object b: " + JSON.stringify(b));
+
+
+
+/*
 
 var x = {
     arr: [],
@@ -66,18 +82,31 @@ for (var j = 0; j < 1000; j++) {
 
 var startTime = Date.now();
 
-var delta = Delta.compare(x, y);
+var delta = Delta.getDelta(x, y);
+
 
 var endTime = Date.now();
+
 
 console.log("Delta: " + JSON.stringify(delta));
 
 console.log("Elapsed time (ms): " + (endTime - startTime));
 
 
-//var pointer = ["list", 0];
+var testA = {
+    array: [
+        "bla",
+        "2",
+        "drei"
+    ]
+};
 
-//setProperty(a, "@list.3", "another");
-//console.log("Get element test: asdf === " + getProperty(a, "list.1"));
+var testB = {
+    array: [
+        null,
+        null,
+        "test"
+    ]
+};
 
-
+console.log("Assign: " + JSON.stringify(Object.assign(testB, testA)));*/
