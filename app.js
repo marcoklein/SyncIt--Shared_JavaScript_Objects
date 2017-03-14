@@ -63,13 +63,24 @@ server.listen(3000);
 server.on("listening", function () {
 
     // sync every 100ms
-    setTimeout(function () {
+    var timeOut = function () {
+
+        setTimeout(function () {
+            timeOut();
+        }, 1000);
+
         syncIt.syncNow();
-    }, 100);
+    };
+    timeOut();
 
 
+    var testObject = {
+        value: "test object"
+    };
 
 
+    // sync the test object with the client
+    syncIt.sync(testObject);
 
 
 

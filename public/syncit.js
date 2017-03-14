@@ -13,8 +13,8 @@ socket.on('connect', function() {
 
 });
 
-socket.on('event', function(data) {
-    console.log("event");
+socket.on('sync', function(data) {
+    console.log("sync: " + JSON.stringify(data));
 });
 
 socket.on('disconnect', function() {
