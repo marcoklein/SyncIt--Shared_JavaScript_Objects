@@ -16,9 +16,9 @@ var timeOut = function () {
     self.timer = setTimeout(function () {
         timeOut();
         //SyncIt.syncNow();
-        //console.log(SyncIt.syncObjectArray);
-        //console.log(SyncIt.getObject("game_state"));
-        $("#input").text(SyncIt.getObject("game_state").text);
+        //console.log(JSON.stringify(SyncIt.getObject("game_state")));
+        //console.log(SyncIt.getObject("game_state").text);
+        $("#input").html("" + SyncIt.getObject("game_state").text);
 
         //$("#text-input").val(SyncIt.getObject("game_state").text);
     }, 100);
@@ -30,6 +30,10 @@ timeOut();
 
 
 $(document).ready(function () {
+
+    //document.getElementById("input-title").innerHTML = "test";
+    //console.log(document.getElementById("input-title").innerHTML);
+
 
     var textChange = function () {
         // send sync request to server

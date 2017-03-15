@@ -119,7 +119,7 @@ SyncIt.prototype.syncObject = function (syncObject) {
     console.log(JSON.stringify(self.oldSyncObjectMap[syncObject.id].object));
     var delta = Delta.getDelta(syncObject.object, self.oldSyncObjectMap[syncObject.id].object);
     console.log(JSON.stringify(delta));
-    // has something changed?
+    // TODO has something changed?
     //if (delta.added.hasChildNodes() || delta.removed.hasChildNodes() || delta.updated.hasChildNodes()) {
         delta.id = self.socket.id;
         self.socket.emit("sync", delta);
