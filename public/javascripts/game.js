@@ -24,25 +24,7 @@ window.onload = function () {
 
     var gameState;
 
-    var players = [
-        /*{
-         name: "<NoName>",
-         color: 0x000000,
-         transparency: 1,
-         radius: 0
-
-         },*/
-        {
-            name: "player 1",
-            color: 0x00FF00,
-            transparency: 1,
-            radius: 20,
-            x: 100,
-            y: 200,
-            graphics: null // stores graphics object if existing
-        }
-    ];
-        var graphics;
+    var graphics;
 
     function preload() {
         // run in background

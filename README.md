@@ -50,3 +50,8 @@ You don't want everyone to change everything. Limit the write access and block s
 
 `syncIt.limitAccess(id, parent, clientId)`:
 Limits access of the client with the given `clientId` of the object with the given `id`, starting with the given `parent` element.
+
+## TODOS
+- Listeners for object changes.
+- Associate object (or part) with a client (take socket id f.e.).
+- Limit object write access of client to a part.
