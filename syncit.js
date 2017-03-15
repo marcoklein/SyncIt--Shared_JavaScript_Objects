@@ -103,6 +103,11 @@ function SyncIt(io) {
              */
             socket.on("sync_object", function (data) {
                 console.log("Sync object request: " + JSON.stringify(data));
+
+                self.syncObjectArray.push(data.object);
+                self.syncObjectMap[data.id] = data.object;
+                self.socketData[socket.id][data.id] = data.object;
+
                 // TODO check provided data
                 //self.syncObjectArray = data;
             });
