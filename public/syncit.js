@@ -140,8 +140,6 @@ SyncIt.prototype.getObject = function (id) {
         console.log("SyncIt: getObject() - No object with id " + id);
         return {};
     }
-    console.log(id);
-    console.log(this.syncObjectMap);
     return this.syncObjectMap[id].object;
 };
 
