@@ -1,6 +1,7 @@
 
 
 function SyncIt(socket) {
+    var self = this;
 
     this.socket = socket;
     this.syncObjectMap = {};
@@ -11,14 +12,16 @@ function SyncIt(socket) {
 
             console.log("Emit.");
             socket.emit("handshake", { name: "SyncIt Client"});
-            socket.emit("event", { name: "asdf"});
-            socket.emit({ name: "Sqwer"});
 
         });
 
         // set up protocol
-        socket.on("new_object", function (data) {
+        socket.on("sync_object", function (data) {
             console.log("New object: " + JSON.stringify(data));
+
+            // store new object
+            self.syncObjectMap[data.id] = data.object;
+            self.syncObjectArray.push(data.object);
         });
 
         socket.on("sync", function(data) {

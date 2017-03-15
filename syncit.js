@@ -53,7 +53,8 @@ function SyncIt(io) {
      */
     this.socketData = {};
 
-    this.sockets = {};
+    this.socketArray = [];
+    this.socketMap = {};
 
 
     // init socket io as it gets connected
@@ -72,8 +73,9 @@ function SyncIt(io) {
             }
 
 
-            // store sockets in a map so a sync can reach them
-            self.sockets[socket.id] = socket;
+            // store socketMap in a map so a sync can reach them
+            self.socketMap[socket.id] = socket;
+            self.socketArray.push(socket);
             self.socketData[socket.id] = {};
 
             // client accepted
@@ -81,7 +83,14 @@ function SyncIt(io) {
 
             // send client all shared objects
             for (var i = 0; i < self.syncObjectArray.length; i++) {
-                socket.emit("new_object", self.syncObjectArray[i]);
+                // send sync object requests to inform client about synced objects
+                var data = {
+                    id: self.syncObjectArray[i].id,
+                    object: self.syncObjectArray[i].object
+                };
+                socket.emit("sync_object", data);
+                // store synced object
+                self.socketData[socket.id][data.id] = data.object;
             }
 
             // INITIALIZE SOCKET AND PROTOCOL
@@ -102,7 +111,10 @@ function SyncIt(io) {
                 self.log("SyncIt disconnected: " + socket.id);
 
                 // remove socket
-                delete self.sockets[socket.id];
+                delete self.socketMap[socket.id];
+                var i = self.socketArray.indexOf(socket);
+                self.socketArray.splice(i, 1);
+
                 var syncObject = self.syncObjectMap[socket.id];
                 delete self.syncObjectMap[socket.id];
 
@@ -112,7 +124,7 @@ function SyncIt(io) {
 
         });
     });
-};
+}
 
 /* Methods */
 
@@ -140,13 +152,21 @@ SyncIt.prototype.syncObject = function (syncObject) {
         receivers = syncObject.receivers;
     }
 
-    // send sync message
-    var syncMessage = {
-        id: syncObject.id,
-        object: syncObject.object
-    };
+    // calculate delta for every client
+    self.socketArray.forEach(function (socket, index) {
+        var delta = Delta.getDelta(syncObject.object, self.socketData[socket.id][syncObject.id]);
 
-    self.sendMessage(syncMessage, receivers);
+        // has something changed?
+        if (delta.added.keys().length > 0 || delta.removed.keys().length > 0 || delta.updated.keys().length > 0) {
+            delta.id = socket.id;
+            socket.emit("sync", delta);
+
+            // store synced object
+            self.socketData[socket.id][syncObject.id] = syncObject.object;
+        }
+
+    });
+
 };
 
 
@@ -155,6 +175,7 @@ SyncIt.prototype.syncObject = function (syncObject) {
  *
  * If receivers are provided the objects gets synced only with them.
  *
+ * @param id Identifier of the synced object. Access it using getObject(id).
  * @param object
  * @param receivers
  * @return {*}
