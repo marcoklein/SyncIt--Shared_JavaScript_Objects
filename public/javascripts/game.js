@@ -13,7 +13,6 @@ window.onload = function () {
     var socket = io("http://localhost:3000");
     var syncIt = new SyncIt(socket);
 
-
     var key1;
     var key2;
     var key3;
@@ -22,6 +21,8 @@ window.onload = function () {
     var left;
     var down;
     var right;
+
+    var gameState;
 
     var players = [
         /*{
@@ -84,11 +85,11 @@ window.onload = function () {
 
     function moveLeft() {
         console.log(syncIt.getObject("game_state"));
-        syncIt.getObject("game_state").player.x--;
+        gameState.player.x --;
     }
 
     function moveRight() {
-        syncIt.getObject("game_state").player.x++;
+        gameState.player.x ++;
     }
 
     function moveUp() {
@@ -104,17 +105,17 @@ window.onload = function () {
     function update() {
 
         if (up) {
-            syncIt.getObject("game_state").player.y++;
+            gameState.player.y++;
         }
         if (down) {
-            syncIt.getObject("game_state").player.y--;
+            gameState.player.y--;
         }
 
 
         // var ellipse = new Phaser.Ellipse(100, 100, 200, 60);
 
         //  Our first arc will be a line only
-        if (syncIt.getObject("game_state").player) {
+        if (syncIt.getObject("game_state")) {
             //console.log(JSON.stringify())
             graphics.x = syncIt.getObject("game_state").player.x;
             graphics.y = syncIt.getObject("game_state").player.y;
@@ -122,5 +123,9 @@ window.onload = function () {
 
 
         syncIt.syncNow();
+
+        if (!gameState && syncIt.getObject("game_state")) {
+            gameState = syncIt.getObject("game_state");
+        }
     }
 };
