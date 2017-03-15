@@ -44,3 +44,9 @@ Internally the following messages are used:
  - `sync`
  - `sync_object`
  - `initial_data`
+ 
+## Write protection
+You don't want everyone to change everything. Limit the write access and block specific clients to modify specific regions in an object.
+
+`syncIt.limitAccess(id, parent, clientId)`:
+Limits access of the client with the given `clientId` of the object with the given `id`, starting with the given `parent` element.
