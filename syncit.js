@@ -103,6 +103,11 @@ function SyncIt(io) {
 
                 // remove socket
                 delete self.sockets[socket.id];
+                var syncObject = self.syncObjectMap[socket.id];
+                delete self.syncObjectMap[socket.id];
+
+                var i = self.syncObjectArray.indexOf(socket);
+                self.syncObjectArray.splice(i, 1);
             });
 
         });
@@ -167,6 +172,12 @@ SyncIt.prototype.sync = function (id, object, receivers) {
     return syncObject;
 };
 
+/**
+ * Sends given message to all receivers.
+ *
+ * @param message
+ * @param receivers
+ */
 SyncIt.prototype.sendMessage = function (message, receivers) {
     var self = this;
     // test if receivers are defined
