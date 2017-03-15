@@ -38,7 +38,7 @@ function SyncIt(socket) {
             // store new object
             self.syncObjectMap[data.id] = data;
             self.syncObjectArray.push(data);
-            self.oldSyncObjectMap[data.id] = Object.assign({}, data);
+            self.oldSyncObjectMap[data.id] = { id: data.id, object: Object.assign({}, data.object) };
         });
 
         socket.on("sync", function(data) {
@@ -114,7 +114,9 @@ SyncIt.prototype.syncObject = function (syncObject) {
     var self = this;
 
     // calculate delta for every client
-
+    console.log("sync object:");
+    console.log(JSON.stringify(syncObject.object));
+    console.log(JSON.stringify(self.oldSyncObjectMap[syncObject.id].object));
     var delta = Delta.getDelta(syncObject.object, self.oldSyncObjectMap[syncObject.id].object);
     console.log(JSON.stringify(delta));
     // has something changed?
@@ -123,7 +125,7 @@ SyncIt.prototype.syncObject = function (syncObject) {
         self.socket.emit("sync", delta);
 
         // store synced object
-        self.oldSyncObjectMap[syncObject.id] = Object.assign({}, syncObject);
+        self.oldSyncObjectMap[syncObject.id] = { id: syncObject.id, object: Object.assign({}, syncObject.object )};
         //self.socketData[socket.id][syncObject.id] = syncObject.object;
     //}
 
