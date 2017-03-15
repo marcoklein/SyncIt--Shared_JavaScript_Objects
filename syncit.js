@@ -95,8 +95,13 @@ function SyncIt(io) {
 
             // INITIALIZE SOCKET AND PROTOCOL
 
-            socket.on("sync", function (data, two) {
-                self.log("SyncIt event: " + JSON.stringify(data) + ", " + two);
+            socket.on("sync", function (data) {
+                self.log("SyncIt event: " + JSON.stringify(data));
+                // TODO check if cient has write access
+
+
+                // broadcast change
+                socket.broadcast.emit("sync", data);
             });
             /**
              * Request to sync an object.
@@ -104,8 +109,8 @@ function SyncIt(io) {
             socket.on("sync_object", function (data) {
                 console.log("Sync object request: " + JSON.stringify(data));
 
-                self.syncObjectArray.push(data.object);
-                self.syncObjectMap[data.id] = data.object;
+                self.syncObjectArray.push( { id: data.id, object: data.object });
+                self.syncObjectMap[data.id] = { id: data.id, object: data.object };
                 self.socketData[socket.id][data.id] = data.object;
 
                 // TODO check provided data
@@ -150,6 +155,12 @@ SyncIt.prototype.syncNow = function () {
  */
 SyncIt.prototype.syncObject = function (syncObject) {
     var self = this;
+    if (!syncObject || !syncObject.object) {
+        console.warn("Tried to add sync object that is null.");
+        console.log(syncObject);
+        console.log(JSON.stringify(self.syncObjectArray));
+        return false;
+    }
 
     // extract receiver information
     var receivers = null;
@@ -162,13 +173,13 @@ SyncIt.prototype.syncObject = function (syncObject) {
         var delta = Delta.getDelta(syncObject.object, self.socketData[socket.id][syncObject.id]);
 
         // has something changed?
-        if (delta.added.keys().length > 0 || delta.removed.keys().length > 0 || delta.updated.keys().length > 0) {
+        //if (delta.added.keys().length > 0 || delta.removed.keys().length > 0 || delta.updated.keys().length > 0) {
             delta.id = socket.id;
             socket.emit("sync", delta);
 
             // store synced object
             self.socketData[socket.id][syncObject.id] = syncObject.object;
-        }
+        //}
 
     });
 
