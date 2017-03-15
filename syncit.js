@@ -107,7 +107,7 @@ function SyncIt(io) {
              * Request to sync an object.
              */
             socket.on("sync_object", function (data) {
-                console.log("Sync object request: " + JSON.stringify(data));
+                self.log("Sync object request: " + JSON.stringify(data));
 
                 self.syncObjectArray.push( { id: data.id, object: data.object });
                 self.syncObjectMap[data.id] = { id: data.id, object: data.object };
@@ -156,12 +156,6 @@ SyncIt.prototype.syncNow = function () {
  */
 SyncIt.prototype.syncObject = function (syncObject) {
     var self = this;
-    if (!syncObject || !syncObject.object) {
-        console.warn("Tried to add sync object that is null.");
-        console.log(syncObject);
-        console.log(JSON.stringify(self.syncObjectArray));
-        return false;
-    }
 
     // extract receiver information
     var receivers = null;
@@ -175,7 +169,7 @@ SyncIt.prototype.syncObject = function (syncObject) {
 
         // TODO has something changed?
         //if (delta.added.keys().length > 0 || delta.removed.keys().length > 0 || delta.updated.keys().length > 0) {
-            delta.id = socket.id;
+            delta.id = syncObject.id;
             socket.emit("sync", delta);
 
             // store synced object
@@ -198,6 +192,13 @@ SyncIt.prototype.syncObject = function (syncObject) {
  * @return {*}
  */
 SyncIt.prototype.sync = function (id, object, receivers) {
+    if (!object || !syncObject.object) {
+        console.warn("Tried to add sync object that is null.");
+        console.log(syncObject);
+        console.log(JSON.stringify(self.syncObjectArray));
+        return false;
+    }
+
     // create sync object
     var syncObject =  {
         object: object,

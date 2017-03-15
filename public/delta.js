@@ -168,3 +168,74 @@ Delta.prototype.getProperty = function (object, pointer) {
     return element;
 };
 
+
+Delta.prototype.applyDelta = function (object, delta) {
+    /**
+     * Go recursively through items and update/add them.
+     *
+     * @param object
+     * @param delta
+     */
+    var applyUpdated = function (object, delta) {
+        var deltaKeys = Object.keys(delta);
+        for (var i = 0; i < deltaKeys.length; i++) {
+            var key = deltaKeys[i];
+            // is it an array?
+            if (key.charAt(0) === "@") {
+                var realKey = key.slice(1);
+                // has object property already?
+                if (!object[realKey]) {
+                    // add array
+                    object[realKey] = delta[key]
+                } else {
+                    // go through array
+                    applyUpdated(object[realKey], delta[key]);
+                }
+            } else if (Array.isArray(delta[key])) {
+                applyUpdated(object[key], delta[key]);
+            } else if (typeof delta[key] === "object") {
+                applyUpdated(object[key], delta[key]);
+            } else {
+                object[key] = delta[key];
+            }
+        }
+    };
+    applyUpdated(object, delta.added);
+    applyUpdated(object, delta.updated);
+
+
+
+    /**
+     * Go recursively through items and update/add them.
+     *
+     * @param object
+     * @param delta
+     */
+    var applyRemoved = function (object, delta) {
+        var deltaKeys = Object.keys(delta);
+        for (var i = 0; i < deltaKeys.length; i++) {
+            var key = deltaKeys[i];
+            // is it an array?
+            if (key.charAt(0) === "@") {
+                var realKey = key.slice(1);
+                // has object property already?
+                if (!object[realKey]) {
+                    // add array
+                    // array does not exists -> do something?
+                } else {
+                    // go through array
+                    applyRemoved(object[realKey], delta[key]);
+                }
+            } else if (Array.isArray(delta[key])) {
+                applyRemoved(object[key], delta[key]);
+            } else if (typeof delta[key] === "object") {
+                applyRemoved(object[key], delta[key]);
+            } else {
+                delete object[key];
+            }
+        }
+    };
+    applyRemoved(object, delta.removed);
+
+    return object;
+};

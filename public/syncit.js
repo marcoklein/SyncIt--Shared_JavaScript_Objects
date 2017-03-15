@@ -25,24 +25,21 @@ function SyncIt(socket) {
 
     var init = function () {
         socket.on("connect", function() {
-
-            console.log("Emit.");
             socket.emit("handshake", { name: "SyncIt Client"});
-
+            console.log("Handshake message sent.");
         });
 
         // set up protocol
         socket.on("sync_object", function (data) {
-            console.log("New object: " + JSON.stringify(data));
-
             // store new object
             self.syncObjectMap[data.id] = data;
             self.syncObjectArray.push(data);
             self.oldSyncObjectMap[data.id] = { id: data.id, object: Object.assign({}, data.object) };
         });
 
-        socket.on("sync", function(data) {
-            console.log("sync: " + JSON.stringify(data));
+        socket.on("sync", function(delta) {
+            // merge data
+            Delta.applyDelta(self.getObject(delta.id), delta);
         });
 
         socket.on("disconnect", function() {
@@ -114,14 +111,10 @@ SyncIt.prototype.syncObject = function (syncObject) {
     var self = this;
 
     // calculate delta for every client
-    console.log("sync object:");
-    console.log(JSON.stringify(syncObject.object));
-    console.log(JSON.stringify(self.oldSyncObjectMap[syncObject.id].object));
     var delta = Delta.getDelta(syncObject.object, self.oldSyncObjectMap[syncObject.id].object);
-    console.log(JSON.stringify(delta));
     // TODO has something changed?
     //if (delta.added.hasChildNodes() || delta.removed.hasChildNodes() || delta.updated.hasChildNodes()) {
-        delta.id = self.socket.id;
+        delta.id = syncObject.id;
         self.socket.emit("sync", delta);
 
         // store synced object

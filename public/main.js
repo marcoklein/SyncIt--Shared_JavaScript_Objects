@@ -2,11 +2,6 @@
 var socket = io('http://localhost:3000');
 
 
-var gameState = {
-    name: "player"
-};
-
-
 var SyncIt = new SyncIt(socket);
 //SyncIt.start(30);
 
@@ -15,13 +10,13 @@ var timeOut = function () {
 
     self.timer = setTimeout(function () {
         timeOut();
-        //SyncIt.syncNow();
+        SyncIt.syncNow();
         //console.log(JSON.stringify(SyncIt.getObject("game_state")));
         //console.log(SyncIt.getObject("game_state").text);
         $("#input").html("" + SyncIt.getObject("game_state").text);
 
         //$("#text-input").val(SyncIt.getObject("game_state").text);
-    }, 100);
+    }, 30);
 
 };
 timeOut();
@@ -42,7 +37,7 @@ $(document).ready(function () {
     };
     // listen for text input changes
     $("#text-input").change(textChange);
-    $("#text-input").keydown(textChange);
+    $("#text-input").keyup(textChange);
 });
 
 
