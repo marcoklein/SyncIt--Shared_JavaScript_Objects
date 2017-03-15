@@ -9,7 +9,7 @@ SyncIt is based on [Socket.io](https://socket.io/) to communicate using sockets.
 ## SyncIt Object
 As you created a syncit instance using `var syncit = new SyncIt(webSocket);`, providing a valid `socket.io` object, you can access all shared objects:
 
-* `getObject(int)`: Get the object with the given id.
+* `getObject(id)`: Get the object with the given id.
 
 ### Sync Modes
 ```
