@@ -85,11 +85,11 @@ window.onload = function () {
 
     function moveLeft() {
         console.log(syncIt.getObject("game_state"));
-        gameState.player.x --;
+        gameState.players[0].x --;
     }
 
     function moveRight() {
-        gameState.player.x ++;
+        gameState.players[0].x ++;
     }
 
     function moveUp() {
@@ -105,20 +105,20 @@ window.onload = function () {
     function update() {
 
         if (up) {
-            gameState.player.y++;
+            gameState.players[0].y++;
         }
         if (down) {
-            gameState.player.y--;
+            gameState.players[0].y--;
         }
 
 
         // var ellipse = new Phaser.Ellipse(100, 100, 200, 60);
 
         //  Our first arc will be a line only
-        if (syncIt.getObject("game_state")) {
+        if (gameState) {
             //console.log(JSON.stringify())
-            graphics.x = syncIt.getObject("game_state").player.x;
-            graphics.y = syncIt.getObject("game_state").player.y;
+            graphics.x = gameState.players[0].x;
+            graphics.y = gameState.players[0].y;
         }
 
 

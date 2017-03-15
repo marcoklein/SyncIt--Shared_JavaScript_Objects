@@ -71,10 +71,11 @@ server.on("listening", function () {
 
     var testObject = {
         value: "test object",
-        player: {
-            x: 200,
-            y: 200
-        }
+        players: [
+            {
+                x: 200,
+                y: 200
+            }]
     };
 
 
