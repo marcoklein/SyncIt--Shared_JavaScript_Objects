@@ -31,18 +31,20 @@ function SyncIt(socket) {
 
         // set up protocol
         socket.on("sync_object", function (data) {
+            console.log("New object: " + data.id);
             // store new object
             self.syncObjectMap[data.id] = data;
             self.syncObjectArray.push(data);
-            self.oldSyncObjectMap[data.id] = { id: data.id, object: Object.assign({}, data.object) };
+            self.oldSyncObjectMap[data.id] = { id: data.id, object: JSON.parse(JSON.stringify(data.object))};
         });
 
         socket.on("sync", function(delta) {
             // merge data
+            console.log("sync for " + delta.id + " " + JSON.stringify(delta));
             Delta.applyDelta(self.getObject(delta.id), delta);
         });
 
-        socket.on("disconnect", function() {
+        socket.on("disconnect", function () {
             console.log("Disconnected.");
         });
     };
@@ -90,7 +92,7 @@ SyncIt.prototype.sync = function (id, object) {
 
     // store synced object
     this.syncObjectMap[id] = {id: id, object: object};
-    this.oldSyncObjectMap[id] = {id: id, object: Object.assign({}, object)};
+    this.oldSyncObjectMap[id] = {id: id, object: JSON.parse(JSON.stringify(object))};
 };
 
 /**
@@ -118,7 +120,7 @@ SyncIt.prototype.syncObject = function (syncObject) {
         self.socket.emit("sync", delta);
 
         // store synced object
-        self.oldSyncObjectMap[syncObject.id] = { id: syncObject.id, object: Object.assign({}, syncObject.object )};
+        self.oldSyncObjectMap[syncObject.id] = { id: syncObject.id, object: JSON.parse(JSON.stringify(syncObject.object) )};
         //self.socketData[socket.id][syncObject.id] = syncObject.object;
     //}
 

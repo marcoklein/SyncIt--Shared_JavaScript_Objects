@@ -192,7 +192,7 @@ SyncIt.prototype.syncObject = function (syncObject) {
  * @return {*}
  */
 SyncIt.prototype.sync = function (id, object, receivers) {
-    if (!object || !syncObject.object) {
+    if (!object) {
         console.warn("Tried to add sync object that is null.");
         console.log(syncObject);
         console.log(JSON.stringify(self.syncObjectArray));

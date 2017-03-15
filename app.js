@@ -5,9 +5,6 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var index = require('./routes/index');
-var users = require('./routes/users');
-
 var app = express();
 
 var port = normalizePort(process.env.PORT || '3000');
@@ -32,8 +29,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
-app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -75,12 +70,17 @@ server.on("listening", function () {
 
 
     var testObject = {
-        value: "test object"
+        value: "test object",
+        player: {
+            x: 200,
+            y: 200
+        }
     };
 
 
     // sync the test object with the client
     syncIt.sync("game_state", testObject);
+
 
 
 
