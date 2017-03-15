@@ -90,7 +90,7 @@ function SyncIt(io) {
                 };
                 socket.emit("sync_object", data);
                 // store synced object
-                self.socketData[socket.id][data.id] = data.object;
+                self.socketData[socket.id][data.id] = data;
             }
 
             // INITIALIZE SOCKET AND PROTOCOL
@@ -111,7 +111,7 @@ function SyncIt(io) {
 
                 self.syncObjectArray.push( { id: data.id, object: data.object });
                 self.syncObjectMap[data.id] = { id: data.id, object: data.object };
-                self.socketData[socket.id][data.id] = data.object;
+                self.socketData[socket.id][data.id] = data;
 
                 // TODO check provided data
                 //self.syncObjectArray = data;
@@ -125,11 +125,12 @@ function SyncIt(io) {
                 var i = self.socketArray.indexOf(socket);
                 self.socketArray.splice(i, 1);
 
-                var syncObject = self.syncObjectMap[socket.id];
-                delete self.syncObjectMap[socket.id];
+                // TODO WHEN TO DELETE OBJECT?
+                //var syncObject = self.syncObjectMap[socket.id];
+                //delete self.syncObjectMap[socket.id];
 
-                var i = self.syncObjectArray.indexOf(socket);
-                self.syncObjectArray.splice(i, 1);
+                //var i = self.syncObjectArray.indexOf(socket);
+                //self.syncObjectArray.splice(i, 1);
             });
 
         });
@@ -170,7 +171,7 @@ SyncIt.prototype.syncObject = function (syncObject) {
 
     // calculate delta for every client
     self.socketArray.forEach(function (socket, index) {
-        var delta = Delta.getDelta(syncObject.object, self.socketData[socket.id][syncObject.id]);
+        var delta = Delta.getDelta(syncObject.object, self.socketData[socket.id][syncObject.id].object);
 
         // has something changed?
         //if (delta.added.keys().length > 0 || delta.removed.keys().length > 0 || delta.updated.keys().length > 0) {
@@ -178,7 +179,7 @@ SyncIt.prototype.syncObject = function (syncObject) {
             socket.emit("sync", delta);
 
             // store synced object
-            self.socketData[socket.id][syncObject.id] = syncObject.object;
+            self.socketData[socket.id][syncObject.id] = syncObject;
         //}
 
     });
@@ -205,6 +206,7 @@ SyncIt.prototype.sync = function (id, object, receivers) {
     };
     // add sync object
     this.syncObjectArray.push(syncObject);
+    this.syncObjectMap[id] = syncObject;
 
     return syncObject;
 };

@@ -10,14 +10,30 @@ var gameState = {
 var SyncIt = new SyncIt(socket);
 //SyncIt.start(30);
 
-SyncIt.sync("gameState", gameState);
+// start a timer loop to sync every interval
+var timeOut = function () {
+
+    //self.timer = setTimeout(function () {
+        //timeOut();
+        //SyncIt.syncNow();
+        //console.log(SyncIt.syncObjectArray);
+        //console.log(SyncIt.getObject("gameState"));
+        //$("#input").val(SyncIt.getObject("gameState").text);
+
+        //$("#text-input").val(SyncIt.getObject("gameState").text);
+    //}, 100);
+
+};
+timeOut();
+
+
 
 
 $(document).ready(function () {
 
     var textChange = function () {
         // send sync request to server
-        SyncIt.getObject("gameState").text = $("#text-input").val();
+        SyncIt.getObject("game_state").text = $("#text-input").val();
         SyncIt.syncNow();
     };
     // listen for text input changes

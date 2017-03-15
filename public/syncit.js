@@ -123,7 +123,7 @@ SyncIt.prototype.syncObject = function (syncObject) {
         self.socket.emit("sync", delta);
 
         // store synced object
-        this.oldSyncObjectMap[syncObject.id].object = Object.assign({}, syncObject.object);
+        self.oldSyncObjectMap[syncObject.id] = Object.assign({}, syncObject);
         //self.socketData[socket.id][syncObject.id] = syncObject.object;
     //}
 
@@ -136,6 +136,12 @@ SyncIt.prototype.syncObject = function (syncObject) {
  * @param id
  */
 SyncIt.prototype.getObject = function (id) {
+    if (!this.syncObjectMap[id]) {
+        console.log("SyncIt: getObject() - No object with id " + id);
+        return {};
+    }
+    console.log(id);
+    console.log(this.syncObjectMap);
     return this.syncObjectMap[id].object;
 };
 
