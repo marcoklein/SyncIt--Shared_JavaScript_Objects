@@ -29,10 +29,6 @@ var b = {
             {
                 text: "prop1",
                 number: 10
-            },
-            {
-                text: "prop2",
-                number: 10
             }
         ]
     }

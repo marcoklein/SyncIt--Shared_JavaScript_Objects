@@ -95,13 +95,15 @@ function SyncIt(io) {
 
             // INITIALIZE SOCKET AND PROTOCOL
 
-            socket.on("sync", function (data) {
-                self.log("SyncIt event: " + JSON.stringify(data));
-                // TODO check if cient has write access
+            socket.on("sync", function (delta) {
+                self.log("SyncIt event: " + JSON.stringify(delta));
+                // TODO check if client has write access
 
+                self.log("game state: " + JSON.stringify(self.getObject("game_state")));
+                Delta.applyDelta(self.getObject(delta.id), delta);
 
                 // broadcast change
-                socket.broadcast.emit("sync", data);
+                socket.broadcast.emit("sync", delta);
             });
             /**
              * Request to sync an object.
@@ -238,6 +240,19 @@ SyncIt.prototype.sendMessage = function (message, receivers) {
         // sync with everybody
         self.io.emit("sync", message);
     }
+};
+
+/**
+ * Returns the object with the given id.
+ *
+ * @param id
+ */
+SyncIt.prototype.getObject = function (id) {
+    if (!this.syncObjectMap[id]) {
+        console.log("SyncIt: getObject() - No object with id " + id);
+        return null;
+    }
+    return this.syncObjectMap[id].object;
 };
 
 

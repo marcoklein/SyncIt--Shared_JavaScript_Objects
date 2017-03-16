@@ -176,6 +176,42 @@ Delta.prototype.applyDelta = function (object, delta) {
      * @param object
      * @param delta
      */
+    var applyAdded = function (object, delta) {
+        var deltaKeys = Object.keys(delta);
+        for (var i = 0; i < deltaKeys.length; i++) {
+            var key = deltaKeys[i];
+            // is it an array?
+            if (key.charAt(0) === "@") {
+                var realKey = key.slice(1);
+                // has object property already?
+                if (!object[realKey]) {
+                    // add array
+                    object[realKey] = delta[key];
+                } else {
+                    // go through array
+                    applyAdded(object[realKey], delta[key]);
+                }
+            } else if (!object[key]) {
+                // property does not exist
+                // add it
+                object[key] = delta[key];
+            } else if (Array.isArray(delta[key])) {
+                applyAdded(object[key], delta[key]);
+            } else if (typeof delta[key] === "object") {
+                applyAdded(object[key], delta[key]);
+            } else {
+                object[key] = delta[key];
+            }
+        }
+    };
+    applyAdded(object, delta.added);
+
+    /**
+     * Go recursively through items and update/add them.
+     *
+     * @param object
+     * @param delta
+     */
     var applyUpdated = function (object, delta) {
         var deltaKeys = Object.keys(delta);
         for (var i = 0; i < deltaKeys.length; i++) {
@@ -186,7 +222,7 @@ Delta.prototype.applyDelta = function (object, delta) {
                 // has object property already?
                 if (!object[realKey]) {
                     // add array
-                    object[realKey] = delta[key]
+                    object[realKey] = delta[key];
                 } else {
                     // go through array
                     applyUpdated(object[realKey], delta[key]);
@@ -200,7 +236,6 @@ Delta.prototype.applyDelta = function (object, delta) {
             }
         }
     };
-    applyUpdated(object, delta.added);
     applyUpdated(object, delta.updated);
 
 

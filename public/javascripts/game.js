@@ -24,7 +24,9 @@ window.onload = function () {
 
     var gameState;
 
-    var graphics;
+    var playerGraphics = [];
+
+    var playerIndex = 0;
 
     function preload() {
         // run in background
@@ -32,11 +34,6 @@ window.onload = function () {
     }
 
     function create() {
-        // graphics
-        graphics = game.add.graphics(game.world.centerX, game.world.centerY);
-        graphics.lineStyle(8, 0xffd900);
-
-        graphics.drawEllipse(50, 50, 50, 50);
 
         // set up keys
 
@@ -53,25 +50,15 @@ window.onload = function () {
         key3.onDown.add(moveRight, this);
 
 
-        /*players.forEach(function (player) {
-            var graphics = game.add.graphics(player.x, player.y);
-
-
-            // graphics.lineStyle(2, 0xffd900, 1);
-
-            graphics.beginFill(player.color, player.transparency);
-            graphics.drawCircle(player.x, player.y, player.radius * 2);
-        });*/
-
     }
 
     function moveLeft() {
         console.log(syncIt.getObject("game_state"));
-        gameState.players[0].x --;
+        gameState.players[playerIndex].x --;
     }
 
     function moveRight() {
-        gameState.players[0].x ++;
+        gameState.players[playerIndex].x ++;
     }
 
     function moveUp() {
@@ -87,20 +74,26 @@ window.onload = function () {
     function update() {
 
         if (up) {
-            gameState.players[0].y++;
+            gameState.players[playerIndex].y++;
         }
         if (down) {
-            gameState.players[0].y--;
+            gameState.players[playerIndex].y--;
         }
 
-
-        // var ellipse = new Phaser.Ellipse(100, 100, 200, 60);
 
         //  Our first arc will be a line only
         if (gameState) {
             //console.log(JSON.stringify())
-            graphics.x = gameState.players[0].x;
-            graphics.y = gameState.players[0].y;
+            for (var i = 0; i < gameState.players.length; i++) {
+                if (!playerGraphics[i]) {
+                    playerGraphics[i] = game.add.graphics(game.world.centerX, game.world.centerY);
+                    playerGraphics[i].lineStyle(8, 0xffd900);
+
+                    playerGraphics[i].drawCircle(50, 50, 25 * 2);
+                }
+                playerGraphics[i].x = gameState.players[i].x;
+                playerGraphics[i].y = gameState.players[i].y;
+            }
         }
 
 
@@ -108,6 +101,10 @@ window.onload = function () {
 
         if (!gameState && syncIt.getObject("game_state")) {
             gameState = syncIt.getObject("game_state");
+
+            // add new player
+            playerIndex = gameState.players.length;
+            gameState.players.push({id: playerIndex, x: 10, y: 10});
         }
     }
 };
