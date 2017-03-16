@@ -13,10 +13,10 @@ window.onload = function () {
     var socket = io("http://localhost:3000");
     var syncIt = new SyncIt(socket);
 
-    var key1;
-    var key2;
-    var key3;
-    var key4;
+    var keyUp;
+    var keyLeft;
+    var keyDown;
+    var keyRight;
     var up;
     var left;
     var down;
@@ -37,47 +37,35 @@ window.onload = function () {
 
         // set up keys
 
-        key4 = game.input.keyboard.addKey(Phaser.Keyboard.W);
-        key4.onDown.add(moveUp, this);
+        keyUp = game.input.keyboard.addKey(Phaser.Keyboard.W);
+        keyUp.onDown.add(function() {up = true}, this);
+        keyUp.onUp.add(function() {up = false}, this);
 
-        key1 = game.input.keyboard.addKey(Phaser.Keyboard.A);
-        key1.onDown.add(moveLeft, this);
+        keyLeft = game.input.keyboard.addKey(Phaser.Keyboard.A);
+        keyLeft.onDown.add(function() {left = true}, this);
+        keyLeft.onUp.add(function() {left = false}, this);
 
-        key2 = game.input.keyboard.addKey(Phaser.Keyboard.S);
-        key2.onDown.add(moveDown, this);
+        keyDown = game.input.keyboard.addKey(Phaser.Keyboard.S);
+        keyDown.onDown.add(function() {down = true}, this);
+        keyDown.onUp.add(function() {down = false}, this);
 
-        key3 = game.input.keyboard.addKey(Phaser.Keyboard.D);
-        key3.onDown.add(moveRight, this);
+        keyRight = game.input.keyboard.addKey(Phaser.Keyboard.D);
+        keyRight.onDown.add(function() {right = true}, this);
+        keyRight.onUp.add(function() {right = false}, this);
 
 
-    }
-
-    function moveLeft() {
-        console.log(syncIt.getObject("game_state"));
-        gameState.players[playerIndex].x --;
-    }
-
-    function moveRight() {
-        gameState.players[playerIndex].x ++;
-    }
-
-    function moveUp() {
-        down = false;
-        up = true;
-    }
-
-    function moveDown() {
-        up = false;
-        down = true;
     }
 
     function update() {
 
         if (up) {
-            gameState.players[playerIndex].y++;
-        }
-        if (down) {
             gameState.players[playerIndex].y--;
+        } else if (left) {
+            gameState.players[playerIndex].x--;
+        } else if (down) {
+            gameState.players[playerIndex].y++;
+        } else if (right) {
+            gameState.players[playerIndex].x++;
         }
 
 

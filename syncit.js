@@ -169,14 +169,14 @@ SyncIt.prototype.syncObject = function (syncObject) {
     self.socketArray.forEach(function (socket, index) {
         var delta = Delta.getDelta(syncObject.object, self.socketData[socket.id][syncObject.id].object);
 
-        // TODO has something changed?
-        //if (delta.added.keys().length > 0 || delta.removed.keys().length > 0 || delta.updated.keys().length > 0) {
+        // has something changed?
+        if (delta.added || delta.removed || delta.updated) {
             delta.id = syncObject.id;
             socket.emit("sync", delta);
 
             // store synced object
             self.socketData[socket.id][syncObject.id] = syncObject;
-        //}
+        }
 
     });
 

@@ -114,15 +114,15 @@ SyncIt.prototype.syncObject = function (syncObject) {
 
     // calculate delta for every client
     var delta = Delta.getDelta(syncObject.object, self.oldSyncObjectMap[syncObject.id].object);
-    // TODO has something changed?
-    //if (delta.added.hasChildNodes() || delta.removed.hasChildNodes() || delta.updated.hasChildNodes()) {
+    // has something changed?
+    if (delta.added || delta.removed || delta.updated) {
         delta.id = syncObject.id;
         self.socket.emit("sync", delta);
 
         // store synced object
         self.oldSyncObjectMap[syncObject.id] = { id: syncObject.id, object: JSON.parse(JSON.stringify(syncObject.object) )};
         //self.socketData[socket.id][syncObject.id] = syncObject.object;
-    //}
+    }
 
 
 };

@@ -1,7 +1,6 @@
 /**
  * Created by marco on 15.03.17.
  */
-
 var Delta = function() {
 };
 
@@ -25,9 +24,7 @@ Delta.prototype.getDelta = function (currentObject, oldObject, parentKey, delta)
     }
     if (!delta) {
         delta = {
-            added: {},
-            removed: {},
-            updated: {}
+            // added, removed and updated
         };
     }
 
@@ -45,6 +42,10 @@ Delta.prototype.getDelta = function (currentObject, oldObject, parentKey, delta)
             var oldKey = oldKeys[j];
             var oldValue = oldObject[oldKey];
             if (!currentObject.hasOwnProperty(oldKey)) {
+                if (!delta.removed) {
+                    // create removed object if needed
+                    delta.removed = {};
+                }
                 self.setPropertyNoArray(delta.removed, parentKeyPrefix + (Array.isArray(oldValue) ? "@" : "") + oldKey, oldValue);
             }
         }
@@ -77,6 +78,10 @@ Delta.prototype.getDelta = function (currentObject, oldObject, parentKey, delta)
             } else if (value !== oldObject[key]) {
                 // value has changed
                 // => add it to delta
+                if (!delta.updated) {
+                    // create updated object if needed
+                    delta.updated = {};
+                }
                 self.setPropertyNoArray(delta.updated, newParentKey, value);
             }
         } else {
@@ -95,6 +100,10 @@ Delta.prototype.getDelta = function (currentObject, oldObject, parentKey, delta)
             }
             // add key if not already added (through array or object looping)
             if (currentObject.hasOwnProperty(key)) {
+                if (!delta.added) {
+                    // create added object if needed
+                    delta.added = {};
+                }
                 self.setPropertyNoArray(delta.added, newParentKey, value);
             }
         }
@@ -168,7 +177,6 @@ Delta.prototype.getProperty = function (object, pointer) {
     return element;
 };
 
-
 Delta.prototype.applyDelta = function (object, delta) {
     /**
      * Go recursively through items and update/add them.
@@ -204,7 +212,6 @@ Delta.prototype.applyDelta = function (object, delta) {
             }
         }
     };
-    applyAdded(object, delta.added);
 
     /**
      * Go recursively through items and update/add them.
@@ -236,9 +243,6 @@ Delta.prototype.applyDelta = function (object, delta) {
             }
         }
     };
-    applyUpdated(object, delta.updated);
-
-
 
     /**
      * Go recursively through items and update/add them.
@@ -270,7 +274,11 @@ Delta.prototype.applyDelta = function (object, delta) {
             }
         }
     };
-    applyRemoved(object, delta.removed);
+
+    if (delta.added) applyAdded(object, delta.added);
+    if (delta.updated) applyUpdated(object, delta.updated);
+    if (delta.removed) applyRemoved(object, delta.removed);
 
     return object;
 };
+
