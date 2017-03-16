@@ -29,6 +29,23 @@ function SyncIt(socket) {
             console.log("Handshake message sent.");
         });
 
+        /**
+         * Receives an array of all synced objects.
+         */
+        socket.on("init_objects", function (objects) {
+            for (var i = 0; i < objects.length; i++) {
+                var data = objects[i];
+                self.syncObjectMap[data.id] = data;
+                self.syncObjectArray.push(data);
+                self.oldSyncObjectMap[data.id] = { id: data.id, object: JSON.parse(JSON.stringify(data.object))};
+            }
+            // SyncIt initialized
+            if (self.onInit) {
+                // inform listener
+                self.onInit();
+            }
+        });
+
         // set up protocol
         socket.on("sync_object", function (data) {
             console.log("New object: " + data.id);
@@ -52,6 +69,13 @@ function SyncIt(socket) {
 
     init();
 }
+
+/**
+ * Define a listener that should be called as SyncIt is initialized.
+ */
+SyncIt.prototype.onInit = function (onInit) {
+    this.onInit = onInit;
+};
 
 /**
  * Starts an internal clock that syncs items in the given interval.

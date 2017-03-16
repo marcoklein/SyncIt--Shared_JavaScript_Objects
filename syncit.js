@@ -61,6 +61,7 @@ function SyncIt(io) {
     this.io.on("connection", function (socket) {
 
         self.log("New SyncIt connection: " + socket.id);
+
         // wait for the handshake message of the socket
         socket.on("handshake", function (handshake) {
             self.log("Received handshake message: " + JSON.stringify(handshake));
@@ -73,7 +74,7 @@ function SyncIt(io) {
             }
 
 
-            // store socketMap in a map so a sync can reach them
+            // store socket in a map so a sync can reach it
             self.socketMap[socket.id] = socket;
             self.socketArray.push(socket);
             self.socketData[socket.id] = {};
@@ -83,15 +84,11 @@ function SyncIt(io) {
 
             // send client all shared objects
             for (var i = 0; i < self.syncObjectArray.length; i++) {
-                // send sync object requests to inform client about synced objects
-                var data = {
-                    id: self.syncObjectArray[i].id,
-                    object: self.syncObjectArray[i].object
-                };
-                socket.emit("sync_object", data);
                 // store synced object
-                self.socketData[socket.id][data.id] = data;
+                self.socketData[socket.id][self.syncObjectArray[i].id] = self.syncObjectArray[i];
             }
+            // inform client about all objects
+            socket.emit("init_objects", self.syncObjectArray);
 
             // INITIALIZE SOCKET AND PROTOCOL
 

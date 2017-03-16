@@ -8,10 +8,19 @@
 
 window.onload = function () {
 
-    var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {preload: preload, create: create, update: update});
+    var game;
 
     var socket = io("http://localhost:3000");
     var syncIt = new SyncIt(socket);
+
+
+    syncIt.onInit(function () {
+        console.log("SyncIt initialized.");
+
+        game = new Phaser.Game(800, 600, Phaser.AUTO, '', {preload: preload, create: create, update: update});
+
+
+    });
 
     var keyUp;
     var keyLeft;
@@ -27,6 +36,7 @@ window.onload = function () {
     var playerGraphics = [];
 
     var playerIndex = 0;
+
 
     function preload() {
         // run in background
