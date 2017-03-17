@@ -30,7 +30,7 @@ window.onload = function () {
 
     var playerIndex = 0;
 
-    var socket = io("http://localhost:3000");
+    var socket = io();
     var syncIt = new SyncIt(socket);
 
 
