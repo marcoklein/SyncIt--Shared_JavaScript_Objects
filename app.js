@@ -53,7 +53,7 @@ io.on('connection', function (connected) {
     console.log("SyncIt connection: " + connected);
 });
 
-server.listen(3000);
+server.listen(5012);
 
 server.on("listening", function () {
 
