@@ -8,19 +8,12 @@
 
 window.onload = function () {
 
+    // init variables
     var game;
-
-    var socket = io("http://localhost:3000");
-    var syncIt = new SyncIt(socket);
-
-
-    syncIt.onInit(function () {
-        console.log("SyncIt initialized.");
-
-        game = new Phaser.Game(800, 600, Phaser.AUTO, '', {preload: preload, create: create, update: update});
-
-
-    });
+    var privateObject = {
+        x: 100,
+        y: 100
+    };
 
     var keyUp;
     var keyLeft;
@@ -36,6 +29,19 @@ window.onload = function () {
     var playerGraphics = [];
 
     var playerIndex = 0;
+
+    var socket = io("http://localhost:3000");
+    var syncIt = new SyncIt(socket);
+
+
+    syncIt.setOnReadyListener(function () {
+        console.log("SyncIt initialized.");
+
+        game = new Phaser.Game(800, 600, Phaser.AUTO, '', {preload: preload, create: create, update: update});
+
+        syncIt.sync(socket.id, privateObject);
+    });
+
 
 
     function preload() {

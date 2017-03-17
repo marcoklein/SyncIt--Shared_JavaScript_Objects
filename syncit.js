@@ -119,6 +119,11 @@ function SyncIt(io) {
             socket.on("disconnect", function (socket) {
                 self.log("SyncIt disconnected: " + socket.id);
 
+                // notify listener
+                if (self.onClientDisconnected) {
+                    self.onClientDisconnected(socket);
+                }
+
                 // remove socket
                 delete self.socketMap[socket.id];
                 var i = self.socketArray.indexOf(socket);
@@ -130,8 +135,13 @@ function SyncIt(io) {
 
                 //var i = self.syncObjectArray.indexOf(socket);
                 //self.syncObjectArray.splice(i, 1);
+
             });
 
+            // inform listeners about connection
+            if (self.onClientConnected) {
+                self.onClientConnected(socket);
+            }
         });
     });
 }
@@ -254,17 +264,52 @@ SyncIt.prototype.getObject = function (id) {
 
 
 /**
- * Prints the given msg on the console if this.debug = true;
- * @param msg
+ * Starts an internal clock that syncs items in the given interval.
+ *
+ * @param updateInMs
  */
-SyncIt.prototype.log = function (msg) {
-    if (this.debug) console.log(msg);
+SyncIt.prototype.start = function (updateInMs) {
+    var self = this;
+    if (self.timer) {
+        // a timer is running
+        // => already started
+        console.log("Tried to start SyncIt twice.");
+        return;
+    }
+    // start a timer loop to sync every interval
+    var timeOut = function () {
+
+        self.timer = setTimeout(function () {
+            timeOut();
+            self.syncNow();
+        }, updateInMs);
+
+    };
+    timeOut();
+
+    console.log("Started auto sync of SyncIt with an update interval of " + updateInMs + " milliseconds.");
+};
+
+/* LISTENERS */
+SyncIt.prototype.setOnClientDisconnectedListener = function (listener) {
+    this.onClientDisconnected = listener;
+};
+
+SyncIt.prototype.setOnClientConnectedListener = function (listener) {
+    this.onClientConnected = listener;
 };
 
 
 /* HELPERS */
 
 
+/**
+ * Prints the given msg on the console if this.debug = true;
+ * @param msg
+ */
+SyncIt.prototype.log = function (msg) {
+    if (this.debug) console.log(msg);
+};
 
 
 module.exports = SyncIt;
