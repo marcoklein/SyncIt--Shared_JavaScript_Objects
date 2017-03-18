@@ -1,6 +1,4 @@
-/**
- * Created by marco on 15.03.17.
- */
+
 var Delta = function() {
 };
 
@@ -281,4 +279,3 @@ Delta.prototype.applyDelta = function (object, delta) {
 
     return object;
 };
-

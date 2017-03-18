@@ -29,6 +29,7 @@ function SyncIt(socket) {
      * @private
      */
     this._globalSpace = null;
+    this._oldGlobalSpace = null;
     this._nameSpace = {};
     this._clientSpace = {};
 
@@ -68,7 +69,7 @@ function SyncIt(socket) {
          * Sync message for the global space.
          */
         socket.on("sync-global", function (delta) {
-            if (!self._globalSpace) {
+            if (!self._initialized) {
                 console.log("Received sync message before initialization!");
                 return;
             }
@@ -184,6 +185,7 @@ SyncIt.prototype.syncNow = function () {
 
     if (!self._initialized) {
         // do not sync
+        console.warn("SyncIt: Called syncNow() before initialization.");
         return;
     }
 
