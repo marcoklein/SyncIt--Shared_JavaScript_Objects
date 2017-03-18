@@ -28,6 +28,10 @@ function SyncIt(io) {
     // general
     this.debug = true;
 
+    this._statistics = {
+        sentMessages: 0
+    };
+
     if (!io) {
         console.error("Can't create SyncIt object with no SocketIO connection.");
         return;
@@ -127,6 +131,7 @@ function SyncIt(io) {
             };
 
             socket.emit("init_objects", initObject);
+            self._statistics.sentMessages++;
 
 
             // INITIALIZE SOCKET AND PROTOCOL
@@ -164,6 +169,7 @@ function SyncIt(io) {
                 self._oldGlobalSpace = JSON.parse(JSON.stringify(self._globalSpace));
 
                 socket.broadcast.emit("sync-global", delta);
+                self._statistics.sentMessages++;
             });
             /**
              * Request to sync an object.
@@ -306,6 +312,7 @@ SyncIt.prototype._syncObject = function (syncObject) {
         if (delta.added || delta.removed || delta.updated) {
             delta.id = syncObject.id;
             socket.emit("sync", delta);
+            self._statistics.sentMessages++;
 
             // store synced object
             self.socketData[socket.id][syncObject.id] = syncObject;
@@ -412,6 +419,17 @@ SyncIt.prototype.start = function (updateInMs) {
 
     };
     timeOut();
+
+
+    var debugOut = function () {
+
+        self.timer = setTimeout(function () {
+            debugOut();
+            console.log("Sent messages: " + self._statistics.sentMessages);
+        }, 5000);
+
+    };
+    debugOut();
 
     console.log("Started auto sync of SyncIt with an update interval of " + updateInMs + " milliseconds.");
 };

@@ -7,6 +7,11 @@ var Delta = new Delta();
 function SyncIt(socket) {
     var self = this;
 
+
+    this._statistics = {
+        sentMessages: 0
+    };
+
     // for the internal clock
     this.interval = 50;
     /**
@@ -38,6 +43,7 @@ function SyncIt(socket) {
     var init = function () {
         socket.on("connect", function() {
             socket.emit("handshake", { name: "SyncIt Client"});
+            self._statistics.sentMessages++;
             console.log("Handshake message sent from " + socket.id);
         });
 
@@ -63,6 +69,8 @@ function SyncIt(socket) {
         socket.on("sync-global", function (delta) {
             // sync global state
             Delta.applyDelta(self._globalSpace, delta);
+            // TODO is applyDelta() an alternative?
+            self._oldGlobalSpace = JSON.parse(JSON.stringify(self._globalSpace));
         });
 
         socket.on("sync_object", function (data) {
@@ -122,6 +130,17 @@ SyncIt.prototype.start = function (updateInMs) {
     };
     timeOut();
 
+
+    var debugOut = function () {
+
+        self.timer = setTimeout(function () {
+            debugOut();
+            console.log("Sent messages: " + self._statistics.sentMessages);
+        }, 5000);
+
+    };
+    debugOut();
+
     console.log("Started auto sync of SyncIt.");
 };
 
@@ -164,6 +183,7 @@ SyncIt.prototype.syncNow = function () {
         // something has changed
         // send global sync
         self.socket.emit("sync-global", delta);
+        self._statistics.sentMessages++;
 
         // update old global state
         // TODO test if applyDelta() would be a faster solution?
