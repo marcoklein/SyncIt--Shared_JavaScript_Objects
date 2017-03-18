@@ -65,7 +65,7 @@ server.on("listening", function () {
 
 
 
-    syncIt.start(40);
+    syncIt.start(60);
 });
 
 

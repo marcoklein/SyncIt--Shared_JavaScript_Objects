@@ -160,6 +160,8 @@ function SyncIt(io) {
             socket.on("sync-global", function (delta) {
                 // sync global state
                 Delta.applyDelta(self._globalSpace, delta);
+                // TODO check if applyDelta() would be an alternative
+                self._oldGlobalSpace = JSON.parse(JSON.stringify(self._globalSpace));
 
                 socket.broadcast.emit("sync-global", delta);
             });
