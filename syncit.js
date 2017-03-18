@@ -38,8 +38,41 @@ function SyncIt(io) {
 
 
     // spaces
-    this._globalSpace = null;
+    this._globalSpace = {};
+    this._oldGlobalSpace = {};
+    /**
+     * Holds objects associated with a name.
+     *
+     * F.e. _nameSpace["name of room"].value = "test"
+     *
+     * @type {{}}
+     * @private
+     */
     this._nameSpace = {};
+    /**
+     * Old objects of the name space to get the delta.
+     *
+     * @type {{}}
+     * @private
+     */
+    this._oldNameSpace = {};
+    /**
+     * Mapping of the clients to the name store.
+     * Each client is associated with a unique id.
+     * The value is an array of rooms the client is connected to.
+     *
+     * F.e. _nameSpaceClients[clientId] = ["room1", "room2", ...]
+     *
+     * @type {{}}
+     * @private
+     */
+    this._nameSpaceClients = {};
+    /**
+     * Holds all objects associated with a client id.
+     *
+     * @type {{}}
+     * @private
+     */
     this._clientSpace = {};
 
     // store which objects to sync
@@ -88,13 +121,14 @@ function SyncIt(io) {
             // client accepted
             self.log("Accepted client " + name);
 
-            // send client all shared objects
-            for (var i = 0; i < self.syncObjectArray.length; i++) {
-                // store synced object
-                self.socketData[socket.id][self.syncObjectArray[i].id] = self.syncObjectArray[i];
-            }
-            // inform client about all objects
-            socket.emit("init_objects", self.syncObjectArray);
+
+            // inform client about the global space
+            var initObject = {
+                globalSpace: self._globalSpace
+            };
+
+            socket.emit("init_objects", initObject);
+
 
             // INITIALIZE SOCKET AND PROTOCOL
 
@@ -166,6 +200,76 @@ SyncIt.prototype.syncNow = function () {
     });
 };
 
+
+/* Methods for Spaces */
+
+/**
+ * Access the global space.
+ * The global space is shared with all connected clients and the server.
+ */
+SyncIt.prototype.globalSpace = function () {
+    return this._globalSpace;
+};
+
+/**
+ * Access a named space through the given name.
+ *
+ * @param name
+ */
+SyncIt.prototype.nameSpace = function (name) {
+    return this._nameSpace[name];
+};
+
+/**
+ * Access a private space only shared between the given client and the server.
+ *
+ * @param clientId
+ * @return {*}
+ */
+SyncIt.prototype.clientSpace = function (clientId) {
+    return this._clientSpace[clientId];
+};
+
+/**
+ * Connects the client with the given id to the space with the given name.
+ *
+ * @param clientId
+ * @param name
+ * @private
+ */
+SyncIt.prototype._connectToSpace = function (clientId, name) {
+    var nameSpaceClients = this._nameSpaceClients[name];
+    if (!nameSpaceClients) {
+        // does not exist yet
+        this._nameSpaceClients[name] = [];
+        nameSpaceClients = this._nameSpaceClients[name];
+    }
+    // check if client has already been added
+    if (nameSpaceClients.indexOf(clientId) != -1) {
+        console.warn("Tried to connect client to space twice. space=" + name + ", client=" + clientId);
+        return;
+    }
+    // add client id
+    this._nameSpaceClients[name].push(clientId);
+};
+
+/**
+ * Disconnects the client with the given id from the space with the given name.
+ *
+ * If the space is empty it will be deleted if keep alive is set to false.
+ *
+ * @param clientId
+ * @private
+ */
+SyncIt.prototype._disconnectFromSpace = function (clientId, name) {
+    // TODO implement disconnect from space
+    // count references on name space
+    console.error("Not implemented yet");
+};
+
+
+/* Private Methods */
+
 /**
  * Syncs the given sync object.
  */
@@ -192,19 +296,6 @@ SyncIt.prototype.syncObject = function (syncObject) {
         }
 
     });
-
-};
-
-
-SyncIt.prototype.globalSpace = function () {
-
-};
-
-SyncIt.prototype.nameSpace = function (name) {
-
-};
-
-SyncIt.prototype.clientSpace = function (clientId) {
 
 };
 
