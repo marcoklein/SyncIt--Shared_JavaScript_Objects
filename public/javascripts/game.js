@@ -45,7 +45,7 @@ window.onload = function () {
             playerIndex = gameState.players.length;
             gameState.players.push({id: playerIndex, x: 10, y: 10});
         });
-    syncIt.start(60);
+    syncIt.start(30);
 
 
 
@@ -104,6 +104,7 @@ window.onload = function () {
                 playerGraphics[i].y = gameState.players[i].y;
             }
         }
+
 
     }
 };

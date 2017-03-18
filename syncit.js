@@ -216,10 +216,27 @@ function SyncIt(io) {
  */
 SyncIt.prototype.syncNow = function () {
     var self = this;
+
+    // sync the global space
+    var delta = Delta.getDelta(self._globalSpace, self._oldGlobalSpace);
+    if (delta.added || delta.removed || delta.updated) {
+        // something has changed
+        // send global sync
+        self.io.emit("sync-global", delta);
+        self._statistics.sentMessages++;
+        console.log("global sync");
+
+        // update old global state
+        // TODO test if applyDelta() would be a faster solution?
+        // does applyDelta() create a "real" copy?
+        self._oldGlobalSpace = JSON.parse(JSON.stringify(self._globalSpace));
+    }
+
+
     // TODO merge sync messages
-    self.syncObjectArray.forEach(function (syncObject, index, syncObjects) {
+    /*self.syncObjectArray.forEach(function (syncObject, index, syncObjects) {
         self._syncObject(syncObject);
-    });
+    });*/
 };
 
 
