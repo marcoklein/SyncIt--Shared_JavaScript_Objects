@@ -68,6 +68,10 @@ function SyncIt(socket) {
          * Sync message for the global space.
          */
         socket.on("sync-global", function (delta) {
+            if (!self._globalSpace) {
+                console.log("Received sync message before initialization!");
+                return;
+            }
             // sync global state
             Delta.applyDelta(self._globalSpace, delta);
             // TODO is applyDelta() an alternative?
