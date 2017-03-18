@@ -116,7 +116,6 @@ function SyncIt(io) {
             // store socket in a map so a sync can reach it
             self.socketMap[socket.id] = socket;
             self.socketArray.push(socket);
-            self.socketData[socket.id] = {};
 
             // client accepted
             self.log("Accepted client " + name);
@@ -132,28 +131,45 @@ function SyncIt(io) {
 
             // INITIALIZE SOCKET AND PROTOCOL
 
-            socket.on("sync", function (delta) {
-                self.log("SyncIt event: " + JSON.stringify(delta));
+            /**
+             * Called as the socket has changed something in the data.
+             * The request contains the name of a space if one is given.
+             */
+            socket.on("sync", function (msg) {
+                self.log("SyncIt event: " + JSON.stringify(msg));
                 // TODO check if client has write access
 
-                self.log("game state: " + JSON.stringify(self.getObject("game_state")));
-                Delta.applyDelta(self.getObject(delta.id), delta);
+                if (msg.room) {
+                    // TODO sync with specific room
 
-                // broadcast change
-                socket.broadcast.emit("sync", delta);
+
+                    Delta.applyDelta(self.getObject(msg.id), msg);
+
+                    // broadcast change in room
+                    socket.broadcast.emit("sync", msg);
+                } else  {
+                    // sync with private space
+                    Delta.applyDelta(self._clientSpace[socket.id], msg);
+                }
+
+            });
+
+            /**
+             * Called as a client changes something in the global space.
+             */
+            socket.on("sync-global", function (delta) {
+                self.log("Global SyncIt event: " + JSON.stringify(delta));
+
+                // sync global state
+                Delta.applyDelta(self._globalSpace, delta);
+
+                socket.broadcast.emit("sync-global", delta);
             });
             /**
              * Request to sync an object.
              */
             socket.on("sync_object", function (data) {
-                self.log("Sync object request: " + JSON.stringify(data));
 
-                self.syncObjectArray.push( { id: data.id, object: data.object });
-                self.syncObjectMap[data.id] = { id: data.id, object: data.object };
-                self.socketData[socket.id][data.id] = data;
-
-                // TODO check provided data
-                //self.syncObjectArray = data;
             });
 
             socket.on("disconnect", function (socket) {
@@ -196,7 +212,7 @@ SyncIt.prototype.syncNow = function () {
     var self = this;
     // TODO merge sync messages
     self.syncObjectArray.forEach(function (syncObject, index, syncObjects) {
-        self.syncObject(syncObject);
+        self._syncObject(syncObject);
     });
 };
 
@@ -273,7 +289,7 @@ SyncIt.prototype._disconnectFromSpace = function (clientId, name) {
 /**
  * Syncs the given sync object.
  */
-SyncIt.prototype.syncObject = function (syncObject) {
+SyncIt.prototype._syncObject = function (syncObject) {
     var self = this;
 
     // extract receiver information

@@ -53,11 +53,7 @@ server.on("listening", function () {
 
 
     // globally shared game state, used by each client to render data
-    var gameState = {
-        players: []
-    };
-    syncIt.sync("gameState", gameState);
-
+    syncIt.globalSpace().players = [];
 
     syncIt.setOnClientConnectedListener(function (client) {
         console.log("Connected " + client.id);

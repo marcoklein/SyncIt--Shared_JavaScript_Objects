@@ -15,6 +15,14 @@ function SyncIt(socket) {
     this.timer = null;
 
     // spaces
+
+    /**
+     * Global space accessible by everyone.
+     * A value is set during initialization.
+     *
+     * @type {null}
+     * @private
+     */
     this._globalSpace = null;
     this._nameSpace = {};
     this._clientSpace = {};
@@ -33,24 +41,30 @@ function SyncIt(socket) {
             console.log("Handshake message sent from " + socket.id);
         });
 
+        // SET UP PROTOCOL
+
         /**
          * Receives an array of all synced objects.
          */
-        socket.on("init_objects", function (objects) {
-            for (var i = 0; i < objects.length; i++) {
-                var data = objects[i];
-                self.syncObjectMap[data.id] = data;
-                self.syncObjectArray.push(data);
-                self.oldSyncObjectMap[data.id] = { id: data.id, object: JSON.parse(JSON.stringify(data.object))};
-            }
+        socket.on("init_objects", function (data) {
+            // extract global space
+            self._globalSpace = data.globalSpace;
+
             // SyncIt initialized
-            if (self.onReady) {
+            if (self._onReadyListener) {
                 // inform listener
-                self.onReady();
+                self._onReadyListener();
             }
         });
 
-        // set up protocol
+        /**
+         * Sync message for the global space.
+         */
+        socket.on("sync-global", function (delta) {
+            // sync global state
+            Delta.applyDelta(self._globalSpace, delta);
+        });
+
         socket.on("sync_object", function (data) {
             console.log("New object: " + data.id);
             // store new object
@@ -72,13 +86,15 @@ function SyncIt(socket) {
 
 
     init();
+
+    return this;
 }
 
 /**
  * Define a listener that should be called as SyncIt is initialized.
  */
 SyncIt.prototype.setOnReadyListener = function (onReady) {
-    this.onReady = onReady;
+    this._onReadyListener = onReady;
 };
 
 
@@ -110,7 +126,7 @@ SyncIt.prototype.start = function (updateInMs) {
 };
 
 SyncIt.prototype.globalSpace = function () {
-
+    return this._globalSpace;
 };
 
 SyncIt.prototype.nameSpace = function (name) {
@@ -141,16 +157,30 @@ SyncIt.prototype.sync = function (id, object) {
  */
 SyncIt.prototype.syncNow = function () {
     var self = this;
-    self.syncObjectArray.forEach(function (syncObject, index, syncObjects) {
-        self.syncObject(syncObject);
-    });
+
+    // sync the global space
+    var delta = Delta.getDelta(self._globalSpace, self._oldGlobalSpace);
+    if (delta.added || delta.removed || delta.updated) {
+        // something has changed
+        // send global sync
+        self.socket.emit("sync-global", delta);
+
+        // update old global state
+        // TODO test if applyDelta() would be a faster solution?
+        // does applyDelta() create a "real" copy?
+        self._oldGlobalSpace = JSON.parse(JSON.stringify(self._globalSpace));
+    }
+
+    /*self.syncObjectArray.forEach(function (syncObject, index, syncObjects) {
+        self._syncObject(syncObject);
+    });*/
 };
 
 
 /**
  * Syncs the given sync object.
  */
-SyncIt.prototype.syncObject = function (syncObject) {
+SyncIt.prototype._syncObject = function (syncObject) {
     var self = this;
 
     // calculate delta for every client

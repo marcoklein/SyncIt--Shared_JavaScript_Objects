@@ -33,15 +33,18 @@ window.onload = function () {
 
     var socket = io();
     var syncIt = new SyncIt(socket);
-
-
     syncIt.setOnReadyListener(function () {
-        console.log("SyncIt initialized.");
+            console.log("SyncIt initialized.");
 
-        game = new Phaser.Game(800, 600, Phaser.AUTO, '', {preload: preload, create: create, update: update});
+            game = new Phaser.Game(800, 600, Phaser.AUTO, '', {preload: preload, create: create, update: update});
 
-        syncIt.sync(socket.id, privateObject);
-    });
+            gameState = syncIt.globalSpace();
+
+
+            // add new player
+            playerIndex = gameState.players.length;
+            gameState.players.push({id: playerIndex, x: 10, y: 10});
+        });
 
 
 
@@ -104,12 +107,5 @@ window.onload = function () {
 
         syncIt.syncNow();
 
-        if (!gameState && syncIt.getObject("game_state")) {
-            gameState = syncIt.getObject("game_state");
-
-            // add new player
-            playerIndex = gameState.players.length;
-            gameState.players.push({id: playerIndex, x: 10, y: 10});
-        }
     }
 };
