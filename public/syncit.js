@@ -56,6 +56,7 @@ function SyncIt(socket) {
             // extract global space
             self._globalSpace = data.globalSpace;
 
+            self._initialized = true;
             // SyncIt initialized
             if (self._onReadyListener) {
                 // inform listener
@@ -176,6 +177,11 @@ SyncIt.prototype.sync = function (id, object) {
  */
 SyncIt.prototype.syncNow = function () {
     var self = this;
+
+    if (!self._initialized) {
+        // do not sync
+        return;
+    }
 
     // sync the global space
     var delta = Delta.getDelta(self._globalSpace, self._oldGlobalSpace);

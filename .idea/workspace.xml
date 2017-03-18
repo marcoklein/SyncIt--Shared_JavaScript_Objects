@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8807d1e5-dfec-43fa-b1fc-c9918a4ea7b8" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/javascripts/game.js" afterPath="$PROJECT_DIR$/public/javascripts/game.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/syncit.js" afterPath="$PROJECT_DIR$/syncit.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/syncit.js" afterPath="$PROJECT_DIR$/public/syncit.js" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -26,17 +26,17 @@
     <splitter split-orientation="horizontal" split-proportion="0.5">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file leaf-file-name="syncit.js" pinned="false" current-in-tab="false">
+          <file leaf-file-name="syncit.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/public/syncit.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-90">
-                  <caret line="190" column="28" lean-forward="false" selection-start-line="190" selection-start-column="13" selection-end-line="190" selection-end-column="28" />
+                <state relative-caret-position="195">
+                  <caret line="174" column="3" lean-forward="true" selection-start-line="174" selection-start-column="3" selection-end-line="174" selection-end-column="3" />
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="game.js" pinned="false" current-in-tab="true">
+          <file leaf-file-name="game.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/public/javascripts/game.js">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="174">
@@ -51,8 +51,8 @@
           <file leaf-file-name="delta.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/delta.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="330">
-                  <caret line="174" column="19" lean-forward="true" selection-start-line="174" selection-start-column="19" selection-end-line="174" selection-end-column="19" />
+                <state relative-caret-position="675">
+                  <caret line="279" column="31" lean-forward="false" selection-start-line="279" selection-start-column="21" selection-end-line="279" selection-end-column="31" />
                   <folding>
                     <element signature="e#0#40#0" expanded="false" />
                     <element signature="e#72#339#0" expanded="false" />
@@ -182,6 +182,7 @@
       <find>players</find>
       <find>index</find>
       <find>syncObject(</find>
+      <find>_initialized</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -209,9 +210,9 @@
         <option value="$PROJECT_DIR$/public/game.html" />
         <option value="$PROJECT_DIR$/app.js" />
         <option value="$PROJECT_DIR$/game_server.js" />
-        <option value="$PROJECT_DIR$/public/syncit.js" />
         <option value="$PROJECT_DIR$/syncit.js" />
         <option value="$PROJECT_DIR$/public/javascripts/game.js" />
+        <option value="$PROJECT_DIR$/public/syncit.js" />
       </list>
     </option>
   </component>
@@ -425,7 +426,7 @@
       <workItem from="1489593132432" duration="21807000" />
       <workItem from="1489740750568" duration="1004000" />
       <workItem from="1489794632128" duration="1099000" />
-      <workItem from="1489848527571" duration="7643000" />
+      <workItem from="1489848527571" duration="7949000" />
     </task>
     <task id="LOCAL-00002" summary="initial commit">
       <created>1489417976072</created>
@@ -774,7 +775,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="85523000" />
+    <option name="totallyTimeSpent" value="85829000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1243,34 +1244,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/delta.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="174" column="19" lean-forward="true" selection-start-line="174" selection-start-column="19" selection-end-line="174" selection-end-column="19" />
-          <folding>
-            <element signature="e#0#40#0" expanded="false" />
-            <element signature="e#72#339#0" expanded="false" />
-            <element signature="e#421#3942#0" expanded="false" />
-            <element signature="e#3945#4116#0" expanded="false" />
-            <element signature="e#4188#4509#0" expanded="false" />
-            <element signature="e#4576#5125#0" expanded="false" />
-            <element signature="e#5128#5341#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/public/delta.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="142">
           <caret line="24" column="14" lean-forward="false" selection-start-line="24" selection-start-column="9" selection-end-line="24" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/syncit.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-90">
-          <caret line="190" column="28" lean-forward="false" selection-start-line="190" selection-start-column="13" selection-end-line="190" selection-end-column="28" />
           <folding />
         </state>
       </provider>
@@ -1294,6 +1271,30 @@
           <folding>
             <element signature="e#0#40#0" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/delta.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="675">
+          <caret line="279" column="31" lean-forward="false" selection-start-line="279" selection-start-column="21" selection-end-line="279" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#40#0" expanded="false" />
+            <element signature="e#72#339#0" expanded="false" />
+            <element signature="e#421#3942#0" expanded="false" />
+            <element signature="e#3945#4116#0" expanded="false" />
+            <element signature="e#4188#4509#0" expanded="false" />
+            <element signature="e#4576#5125#0" expanded="false" />
+            <element signature="e#5128#5341#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/syncit.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="174" column="3" lean-forward="true" selection-start-line="174" selection-start-column="3" selection-end-line="174" selection-end-column="3" />
+          <folding />
         </state>
       </provider>
     </entry>
