@@ -36,6 +36,12 @@ function SyncIt(io) {
         this.io = io;
     }
 
+
+    // spaces
+    this._globalSpace = null;
+    this._nameSpace = {};
+    this._clientSpace = {};
+
     // store which objects to sync
     // format:
     // [id] =
@@ -186,6 +192,19 @@ SyncIt.prototype.syncObject = function (syncObject) {
         }
 
     });
+
+};
+
+
+SyncIt.prototype.globalSpace = function () {
+
+};
+
+SyncIt.prototype.nameSpace = function (name) {
+
+};
+
+SyncIt.prototype.clientSpace = function (clientId) {
 
 };
 

@@ -14,8 +14,12 @@ function SyncIt(socket) {
      */
     this.timer = null;
 
-    // objects
+    // spaces
+    this._globalSpace = null;
+    this._nameSpace = {};
+    this._clientSpace = {};
 
+    // socket
     this.socket = socket;
     this.syncObjectMap = {};
     this.syncObjectArray = [];
@@ -103,6 +107,18 @@ SyncIt.prototype.start = function (updateInMs) {
     timeOut();
 
     console.log("Started auto sync of SyncIt.");
+};
+
+SyncIt.prototype.globalSpace = function () {
+
+};
+
+SyncIt.prototype.nameSpace = function (name) {
+
+};
+
+SyncIt.prototype.clientSpace = function (clientId) {
+
 };
 
 /**
