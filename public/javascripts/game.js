@@ -45,7 +45,7 @@ window.onload = function () {
             playerIndex = gameState.players.length;
             gameState.players.push({id: playerIndex, x: 10, y: 10});
         });
-    syncIt.start(100);
+    syncIt.start(40);
 
 
 

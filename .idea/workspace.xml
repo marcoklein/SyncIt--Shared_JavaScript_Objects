@@ -29,8 +29,8 @@
           <file leaf-file-name="game.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/public/javascripts/game.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="219">
-                  <caret line="47" column="20" lean-forward="false" selection-start-line="47" selection-start-column="20" selection-end-line="47" selection-end-column="20" />
+                <state relative-caret-position="474">
+                  <caret line="60" column="41" lean-forward="false" selection-start-line="60" selection-start-column="41" selection-end-line="60" selection-end-column="41" />
                   <folding>
                     <element signature="e#0#40#0" expanded="false" />
                   </folding>
@@ -342,14 +342,7 @@
       <workItem from="1489740750568" duration="1004000" />
       <workItem from="1489794632128" duration="1099000" />
       <workItem from="1489848527571" duration="9013000" />
-      <workItem from="1489866557625" duration="543000" />
-    </task>
-    <task id="LOCAL-00006" summary="syncing of attributes work">
-      <created>1489487392395</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1489487392395</updated>
+      <workItem from="1489866557625" duration="788000" />
     </task>
     <task id="LOCAL-00007" summary="array sync works">
       <created>1489489237752</created>
@@ -687,11 +680,18 @@
       <option name="project" value="LOCAL" />
       <updated>1489867309011</updated>
     </task>
-    <option name="localTasksCounter" value="55" />
+    <task id="LOCAL-00055" summary="slow">
+      <created>1489867393371</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1489867393371</updated>
+    </task>
+    <option name="localTasksCounter" value="56" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="87436000" />
+    <option name="totallyTimeSpent" value="87681000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -752,7 +752,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="bug fixes" />
     <MESSAGE value="fixed bugs" />
     <MESSAGE value="syncing works" />
     <MESSAGE value="sync arrives on every client" />
@@ -777,7 +776,8 @@
     <MESSAGE value="fixed endless loop bug" />
     <MESSAGE value="fixed bug" />
     <MESSAGE value="fast" />
-    <option name="LAST_COMMIT_MESSAGE" value="fast" />
+    <MESSAGE value="slow" />
+    <option name="LAST_COMMIT_MESSAGE" value="slow" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1200,8 +1200,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/public/javascripts/game.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="219">
-          <caret line="47" column="20" lean-forward="false" selection-start-line="47" selection-start-column="20" selection-end-line="47" selection-end-column="20" />
+        <state relative-caret-position="474">
+          <caret line="60" column="41" lean-forward="false" selection-start-line="60" selection-start-column="41" selection-end-line="60" selection-end-column="41" />
           <folding>
             <element signature="e#0#40#0" expanded="false" />
           </folding>
