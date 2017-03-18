@@ -158,8 +158,6 @@ function SyncIt(io) {
              * Called as a client changes something in the global space.
              */
             socket.on("sync-global", function (delta) {
-                self.log("Global SyncIt event: " + JSON.stringify(delta));
-
                 // sync global state
                 Delta.applyDelta(self._globalSpace, delta);
 
